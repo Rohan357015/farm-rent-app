@@ -5,6 +5,7 @@ import tractor from '../assets/tractor1.png'
 import tractor2 from '../assets/tractor2.png'
 import tractor3 from '../assets/tractor3.png'
 import tractor4 from '../assets/tractor4.png'
+import logo from '../assets/LogoColumn.png'
 
 const HOME = () => {
   const position={
@@ -179,6 +180,41 @@ const HOME = () => {
           </div>
           <button className='bg-yellow-500 text- rounded-2xl px-10 py-2 rounded-md hover:bg-yellow-400 transition'>Sign Up</button>
         </div>
+
+        <footer className='flex justify-around mt-[10%] text-gray-400 pb-19'>
+          <div className='mr-[10%]'>
+            <img src={logo} alt="Logo" height={200} width={100} className='mt-[5%] ml-[45%]' />
+          </div>
+          <div className='flex justify-between gap-70'>
+            <div>
+              <ul>
+                <li>quick links</li>
+                <li>Home</li>
+                <li>Rent</li>
+                <li>About</li>
+                <li>contact</li>
+              </ul>
+            </div>
+            <div>
+              <ul>
+                <li>quick links</li>
+                <li>Home</li>
+                <li>Rent</li>
+                <li>About</li>
+                <li>contact</li>
+              </ul>
+            </div>
+            <div>
+              <ul>
+                <li>quick links</li>
+                <li>Home</li>
+                <li>Rent</li>
+                <li>About</li>
+                <li>contact</li>
+              </ul>
+            </div>
+          </div>
+        </footer>
 
     </div>
   )

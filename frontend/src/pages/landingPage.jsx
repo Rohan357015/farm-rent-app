@@ -6,6 +6,7 @@ import tractor2 from '../assets/tractor2.png'
 import tractor3 from '../assets/tractor3.png'
 import tractor4 from '../assets/tractor4.png'
 import logo from '../assets/LogoColumn.png'
+import { useNavigate } from 'react-router-dom'
 
 const HOME = () => {
   const position={
@@ -13,10 +14,11 @@ const HOME = () => {
     right : '-70%',
     top : '-30rem',
   }
+  const navigate = useNavigate();
   return (
     <div className='bg-[#12152D]'>
       {/* Navbar */}
-      <nav className='w-full h-[70px] bg-[#151933] flex justify-between items-center px-8'>
+      <nav className='w-full h-[70px] bg-[#272c4e] flex justify-between items-center px-8'>
         <div className='flex items-center gap-2'>
           <FontAwesomeIcon icon={faStar} className='text-yellow-400 text-[24px]' />
           <p className='text-white text-[24px] font-semibold'>AgroRent</p>
@@ -28,8 +30,13 @@ const HOME = () => {
           <li className='hover:text-yellow-400 cursor-pointer'>Rentals</li>
           <li className='hover:text-yellow-400 cursor-pointer'>Contact</li>
           <li>
-            <button className='bg-yellow-400 text-blue-950 font-semibold px-4 py-2 rounded-lg hover:bg-yellow-500 transition'>
-              Join
+             <button onClick={() => navigate('/farmer-login')} className='bg-transparent text-white border border-yellow-400 font-semibold px-4 py-2 rounded-lg hover:bg-yellow-500 transition'>
+             Login
+            </button>
+          </li>
+          <li>
+            <button onClick={() => navigate('/register')} className='bg-yellow-400 text-blue-950 font-semibold  border border-amber-400 px-4 py-2 rounded-lg hover:bg-transparent hover:text-yellow-400 transition'>
+              Register
             </button>
           </li>
         </ul>

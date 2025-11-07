@@ -1,13 +1,16 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/landingPage.jsx";
+import { FarmerLogin } from "./pages/farmerlogin.jsx";
+import { SupplierLogin } from "./pages/supplerlogin.jsx";
 
 function App() {
   return (
     <div>
       <Routes>
         <Route path="/" element={<Home />} />
-        {/* <Route path="/about" element={<About />} /> */}
+        <Route path="/farmer-login" element={<FarmerLogin />} />
+        <Route path="/supplier-login" element={<SupplierLogin />} />
       </Routes>
     </div>
   );

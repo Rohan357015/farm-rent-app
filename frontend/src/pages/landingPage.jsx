@@ -7,6 +7,7 @@ import tractor3 from '../assets/tractor3.png'
 import tractor4 from '../assets/tractor4.png'
 import logo from '../assets/LogoColumn.png'
 import { useNavigate } from 'react-router-dom'
+import Navbar from './navbar.jsx'
 
 const HOME = () => {
   const position={
@@ -17,31 +18,7 @@ const HOME = () => {
   const navigate = useNavigate();
   return (
     <div className='bg-[#12152D]'>
-      {/* Navbar */}
-      <nav className='w-full h-[70px] bg-[#272c4e] flex justify-between items-center px-8'>
-        <div className='flex items-center gap-2'>
-          <FontAwesomeIcon icon={faStar} className='text-yellow-400 text-[24px]' />
-          <p className='text-white text-[24px] font-semibold'>AgroRent</p>
-        </div>
-
-        <ul className='flex items-center gap-8 text-white text-[18px]'>
-          <li className='hover:text-yellow-400 cursor-pointer'>Home</li>
-          <li className='hover:text-yellow-400 cursor-pointer'>About</li>
-          <li className='hover:text-yellow-400 cursor-pointer'>Rentals</li>
-          <li className='hover:text-yellow-400 cursor-pointer'>Contact</li>
-          <li>
-             <button onClick={() => navigate('/farmer-login')} className='bg-transparent text-white border border-yellow-400 font-semibold px-4 py-2 rounded-lg hover:bg-yellow-500 transition'>
-             Login
-            </button>
-          </li>
-          <li>
-            <button onClick={() => navigate('/register')} className='bg-yellow-400 text-blue-950 font-semibold  border border-amber-400 px-4 py-2 rounded-lg hover:bg-transparent hover:text-yellow-400 transition'>
-              Register
-            </button>
-          </li>
-        </ul>
-      </nav>
-
+      <Navbar />
       {/* Hero Section */}
       <section className='h-screen w-full bg-[#12152D] flex justify-around items-center px-16'>
         <div className='w-[40%]'>

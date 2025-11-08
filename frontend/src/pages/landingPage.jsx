@@ -29,10 +29,10 @@ const HOME = () => {
             Welcome to AgroRent, your premier destination <br /> for reliable and affordable farm equipment rentals
           </p>
           <div className='mt-6 flex gap-4'>
-            <button className='bg-yellow-400 text-blue-950 font-semibold px-4 py-2 rounded-lg hover:bg-transparent border hover:text-white hover:border-yellow-400 transition'>
+            <button onClick={()=>navigate('/farmer-register')} className='bg-yellow-400 text-blue-950 font-semibold px-4 py-2 rounded-lg hover:bg-transparent border hover:text-white hover:border-yellow-400 transition'>
               Rent Now
             </button>
-            <button className='bg-transparent text-white border border-yellow-400 font-semibold px-4 py-2 rounded-lg hover:bg-yellow-500 transition'>
+            <button onClick={()=>navigate('/supplier-register')} className='bg-transparent text-white border border-yellow-400 font-semibold px-4 py-2 rounded-lg hover:bg-yellow-500 transition'>
               Join as Supplier
             </button>
           </div>
@@ -112,12 +112,10 @@ const HOME = () => {
           <h3 className='text-white text-[26px] font-mono'>Renting Made Easy</h3>
           <p className='text-white'>At AgroRent, we believe that renting farm equipment should be a straightforward and stress-free process. Our user-friendly platform and dedicated customer support team are here to guide you through every step, ensuring a seamless rental experience</p>
           <div className='flex gap-10'>
-          <button className='bg-yellow-400 border-radius:1rem text-blue-950 font-semibold px-4 py-2 rounded-lg hover:bg-transparent border hover:text-white hover:border-yellow-400 transition'>
+          <button  onClick={()=>navigate('/farmer-register ')} className='bg-yellow-400 border-radius:1rem text-blue-950 font-semibold px-4 py-2 rounded-lg hover:bg-transparent border hover:text-white hover:border-yellow-400 transition'>
               Rent Now
             </button>
-            <button className='bg-transparent text-white border  border-yellow-400 font-semibold px-4 py-2 rounded-lg hover:bg-yellow-500 transition'>
-              Join as Supplier
-            </button>
+            
             </div>
         </div>
       </section>

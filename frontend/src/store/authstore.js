@@ -33,5 +33,27 @@ export const useAuthStore =  create((set, get) => ({
             toast.error("Error registering farmer");
             set({loading: false});
         }
+    },
+    FarmerLogin : async (credentials) => {
+        set({loading: true});
+        try {
+            const response = await axios.post("/auth/farmer/login", credentials);
+            toast.success("Farmer logged in successfully");
+            set({user: response.data.user, loading: false});
+        } catch (error) {
+            toast.error("Error logging in farmer");
+            set({loading: false});
+        }
+    },
+    SupplierLogin : async (credentials) => {
+        set({loading: true});
+        try {
+            const response = await axios.post("/auth/supplier/login", credentials);
+            toast.success("Supplier logged in successfully");
+            set({user: response.data.user, loading: false});
+        } catch (error) {
+            toast.error("Error logging in supplier");
+            set({loading: false});
+        }   
     }
 }))

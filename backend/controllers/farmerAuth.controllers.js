@@ -4,7 +4,7 @@ import { generateTokens, storeRefreshToken, setCookies } from "../utils/token.js
 import { redis } from "../lib/redis.js";
 
 export const farmerSignup = async (req, res) => {
-  const { name, email, password, phone, location ,role ,confirmPassword} = req.body;
+  const { name, email, password, phone, location ,role} = req.body;
 
   try {
     const existingFarmer = await Farmer.findOne({ email });

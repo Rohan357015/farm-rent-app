@@ -2,11 +2,28 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import tractor from '../assets/welcome.png'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useState } from 'react'
+import { useAuthStore } from '../store/authstore'
 
 function FarmerLogin() {
   const navigate = useNavigate();
   const location = useLocation();
+const [formData, setFormData] = useState({
+  email: '',
+  password: ''
+});
+const handleChange = (e) => {
+  setFormData({
+    ...formData,
+    [e.target.name]: e.target.value
+  });
+}
+const {FarmerLogin} = useAuthStore();
 
+const handleSubmit = (e) => {
+  e.preventDefault();
+  FarmerLogin(formData);
+}
   return (
     <div className='bg-[#12152D] h-screen flex justify-around items-center text-white overflow-hidden'>
       {/* Left Section - Tractor Image */}
@@ -54,10 +71,17 @@ function FarmerLogin() {
         </div>
 
         {/* Login Form */}
-        <form className='flex flex-col gap-8 mt-5'>
+        <form onSubmit={handleSubmit} className='flex flex-col gap-8 mt-5'>
           <div className='flex flex-col gap-5'>
-            <input className='bg-white h-12 rounded-lg px-4' type="text" placeholder='Email' />
-            <input className='bg-white h-12 rounded-lg px-4' type="password" placeholder='Password' />
+            <input 
+                name="email"
+                value={formData.email}
+                onChange={handleChange} className='bg-white h-12 rounded-lg px-4' type="text" placeholder='Email' />
+            <input 
+                 name="password"
+                value={formData.password}
+                onChange={handleChange} 
+                className='bg-white h-12 rounded-lg px-4' type="password" placeholder='Password' />
           </div>
 
           <a href="" className='text-gray-500 hover:text-yellow-500 transition'>Forgot Password?</a>

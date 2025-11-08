@@ -39,7 +39,7 @@ function FarmerRegister  ()  {
 
     try {
       await registerUser(formData);
-      toast.success("Registration Successful");
+      
       navigate('/farmer-login'); // Redirect after successful registration
     } catch (error) {
       console.error('Registration failed:', error);

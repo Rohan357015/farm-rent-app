@@ -82,7 +82,7 @@ function FarmerRegister  ()  {
                 : 'border-transparent text-gray-600 hover:text-yellow-500'
             }`}
           >
-            Renter Login
+            Renter Register
           </button>
 
           <button
@@ -93,7 +93,7 @@ function FarmerRegister  ()  {
                 : 'border-transparent text-gray-600 hover:text-yellow-500'
             }`}
           >
-            Supplier Login
+            Supplier register
           </button>
         </div>
 

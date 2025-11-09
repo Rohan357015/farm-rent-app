@@ -9,6 +9,7 @@ import logo from '../assets/LogoColumn.png'
 import { useNavigate } from 'react-router-dom'
 import Navbar from './navbar.jsx'
 
+
 const HOME = () => {
   const position={
     position: 'relative',

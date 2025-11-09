@@ -6,10 +6,13 @@ import FarmerLogin from "./pages/farmerlogin";
 import SupplierLogin from "./pages/supplerlogin";
 import FarmerRegister from "./pages/FarmerRegister";
 import SupplierRegister from "./pages/SupplierRegister";
+import { ThemeProvider } from "next-themes";
 
 function App() {
   return (
-    <div>
+    <ThemeProvider attribute="class">
+    <div >
+      
       <Toaster position="top-center" reverseOrder={false} />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -19,7 +22,9 @@ function App() {
         <Route path="/supplier-register" element={<SupplierRegister />} />
       </Routes>
       <Toaster />
+     
     </div>
+    </ThemeProvider>
   );
 }
 

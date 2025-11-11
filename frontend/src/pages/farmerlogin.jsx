@@ -23,6 +23,7 @@ const {FarmerLogin} = useAuthStore();
 const handleSubmit = (e) => {
   e.preventDefault();
   FarmerLogin(formData);
+  navigate('/farmer-dashboard');
 }
   return (
     <div className='bg-[#12152D] h-screen flex justify-around items-center text-white overflow-hidden'>

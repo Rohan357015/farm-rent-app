@@ -1,0 +1,32 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBell } from '@fortawesome/free-solid-svg-icons';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
+
+const FarmerNavabar = () => {
+    return (
+        <nav className='w-full border border-gray-300 bg-white text-black h-[70px] flex justify-between items-center px-8 shadow-2xl'>
+            <div className='flex items-center gap-2 text-3xl font-bold'>
+                <Link to="/farmer-dashboard">🌽 AgroRent</Link>
+            </div>
+            <div>
+                <ul className='flex justify-between items-center gap-8 text-lg font-semibold'>
+                    <li><Link to="/farmer-dashboard" className='hover:text-yellow-500 transition'>Dashboard</Link></li>
+                    <li><Link to="/farmer-equipment" className='hover:text-yellow-500 transition'>Equipment</Link></li>
+                    <li><Link to="/farmer-rental" className='hover:text-yellow-500 transition'>Rental</Link></li>
+                    <li><Link to="/farmer-earnings" className='hover:text-yellow-500 transition'>Earnings</Link></li>
+                    <li><Link to="/farmer-help" className='hover:text-yellow-500 transition'>Help</Link></li>
+                </ul>
+            </div>
+            <div>
+                <ul className='flex justify-between items-center gap-8 text-lg font-semibold'>
+                    <li><Link to="/farmer-notifications"><FontAwesomeIcon icon={faBell} className='text-blue-950 text-2xl hover:text-yellow-600 transition' /></Link></li>
+                    <li><Link to="/farmer-profile"><FontAwesomeIcon icon={faUser} className='text-blue-950 text-2xl hover:text-yellow-600 transition' /></Link></li>
+                </ul>
+            </div>
+        </nav>
+    )
+}
+
+export default FarmerNavabar;

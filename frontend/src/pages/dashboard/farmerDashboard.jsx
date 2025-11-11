@@ -8,7 +8,7 @@ import AutoWeather from '../../components/weatherApp.jsx';
 
 const FarmerDashboard = () => {
     return (
-        <div className="min-h-screen bg-[#12152D] text-white">
+        <div className="min-h-screen bg-[#12152D] text-white ">
             <FarmerNavabar />
             <div  className='flex justify-between items-center'>
             <div className='profile  w-[20%] h-screen flex flex-col gap-8 bg-white text-black'>

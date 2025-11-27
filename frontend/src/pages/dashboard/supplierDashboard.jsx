@@ -4,11 +4,17 @@ import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Tractor, Star, Activity } from "lucide-react";
 import AutoWeather from '../../components/weatherApp.jsx';
-import MainDropDown from '../dashboard/MainDropDown.jsx';
-import Supplier from '../../../../backend/models/supplier.model.js';
+import SupplierDropDown from './supplierdropdown.jsx';
+import { useAuthStore } from '../../store/authstore.js';
+import { useEffect } from 'react';
+
 
 
 const SupplierDashboard = () => {
+   const { user, getSupplierDashboard } = useAuthStore();
+      useEffect(() => {
+      getSupplierDashboard();
+    }, []);
     return (
         <div className="min-h-screen bg-[#12152D] text-white ">
             <FarmerNavabar />
@@ -20,8 +26,8 @@ const SupplierDashboard = () => {
                         <FontAwesomeIcon  className =" text-3xl" icon = {faUser}/>
                      
                     </div>
-                    <h3 className='font-semibold text-[1rem] '>Rohan Mishra</h3>
-                    <p className="text-gray-400">address of the farmer</p>
+                    <h3 className='font-semibold text-[1rem] '>{user?.name}</h3>
+                    <p className="text-gray-400">{user?.location}</p>
                 </section>
                 <section className='flex items-center justify-around text-lg font-serif'>
                     <div className='flex flex-col items-center'><h2 className='text-green-900'> 12</h2><p>Rentals</p></div>
@@ -33,13 +39,13 @@ const SupplierDashboard = () => {
                 </section>
                 <hr  className='text-gray-300'/>
                 <section className=' w-full  dropmenu '>
-                    <MainDropDown />
+                    <SupplierDropDown/>
                 </section>
             </div>
 
             <div className="info bg-yellow-50 text-black w-[80%] h-screen overflow-y-auto flex justify-center items-center"
                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-                <h1 className="text-3xl font-bold mb-4">Welcome to your Dashboard</h1>
+                <h1 className="text-3xl font-bold mb-4">Welcome to your Dashboard, {user?.name}</h1>
             </div>
              </div>
         </div>

@@ -17,6 +17,7 @@ const supplierSchema = new mongoose.Schema(
     ],
     role: { type: String, default: "supplier" },
   },
+  
   { timestamps: true }
 );
 

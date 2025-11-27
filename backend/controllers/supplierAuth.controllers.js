@@ -33,7 +33,7 @@ export const supplierLogin = async (req, res) => {
     await storeRefreshToken(supplier._id, refreshToken);
     setCookies(res, accessToken, refreshToken);
 
-    res.json({ id: supplier._id, name: supplier.name, email: supplier.email, role: supplier.role });
+    res.json({ message: "Login successful", id: supplier._id, name: supplier.name, email: supplier.email, role: supplier.role });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -53,3 +53,10 @@ export const supplierLogout = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+export const getSupplierProfile = async (req, res) => {
+    try{
+       res.json({ message:"get data Success", supplier:req.user});
+    } catch (error) {
+       res.status(500).json({ message: error.message });
+    }
+}

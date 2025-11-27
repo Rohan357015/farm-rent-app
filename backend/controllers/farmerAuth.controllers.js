@@ -79,33 +79,13 @@ export const farmerLogout = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+
+
 export const getFarmerDashboard = async (req, res) => {
-  try {
-    const farmerId = req.query.id;
-    if (!farmerId) {
-      return res.status(400).json({ success: false, message: "Farmer ID is required" });
-    }
-
-    const farmer = await Farmer.findById(farmerId).select("name email phone location");
-    if (!farmer) {
-      return res.status(404).json({ success: false, message: "Farmer not found" });
-    }
-
-    const rentalCount = await Rental.countDocuments({ farmer: farmerId });
-    const activeRentals = await Rental.countDocuments({ farmer: farmerId, status: "active" });
-    const ratings = await Rating.find({ farmer: farmerId });
-    const totalReviews = ratings.length;
-    const avgRating = totalReviews > 0
-      ? parseFloat((ratings.reduce((sum, r) => sum + r.stars, 0) / totalReviews).toFixed(1))
-      : 0;
-
-    return res.status(200).json({
-      success: true,
-      user: farmer,
-      stats: { rentalCount, activeRentals, avgRating, totalReviews }
-    });
+  try{
+    res.json({message: "Farmer Dashboard Accessed", farmer: req.user});
   } catch (error) {
-    console.error("Dashboard Error:", error);
-    return res.status(500).json({ success: false, message: "Server error loading dashboard" });
+    res.status(500).json({ message: error.message });
   }
-};
+}

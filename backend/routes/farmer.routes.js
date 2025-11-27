@@ -9,7 +9,7 @@ const farmerRouter = express.Router();
 farmerRouter.post("/farmer/signup", farmerSignup);
 farmerRouter.post("/farmer/login", farmerLogin);
 farmerRouter.post("/farmer/logout", farmerLogout);
-farmerRouter.get("/farmer/getfarmer", getFarmerDashboard);
+farmerRouter.get("/farmer/getfarmer",ProtectRoute, getFarmerDashboard);
 
 
 

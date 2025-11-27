@@ -4,7 +4,7 @@ import tractor from '../assets/welcome.png'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import { useAuthStore } from '../store/authstore'
-
+import toast from 'react-hot-toast';
 function SupplierLogin() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,11 +20,14 @@ function SupplierLogin() {
   }
   const {SupplierLogin} = useAuthStore();
 
-  const handleSubmit = (e) => {
+  const handleSubmit =  (e) => {
     e.preventDefault();
 
-    SupplierLogin(formData);
+     SupplierLogin(formData);
+    
     navigate('/supplier-dashboard');
+    toast.success("Login successful");
+    
   }
   return (
     <div className='bg-[#12152D] h-screen flex justify-around items-center text-white overflow-hidden'>
@@ -73,7 +76,7 @@ function SupplierLogin() {
         </div>
 
         {/* Login Form */}
-        <form className='flex flex-col gap-8 mt-5'>
+        <form className='flex flex-col gap-8 mt-5' onSubmit={handleSubmit}>
           <div className='flex flex-col gap-5'>
              <input 
                 name="email"
@@ -88,12 +91,12 @@ function SupplierLogin() {
 
           <a href="" className='text-gray-500 hover:text-yellow-500 transition'>Forgot Password?</a>
 
-          <button className='bg-yellow-400 text-blue-950 font-semibold border border-amber-400 px-4 py-2 rounded-lg hover:bg-transparent hover:text-yellow-400 transition mt-[-3%]'>
+          <button  className='bg-yellow-400 text-blue-950 font-semibold border border-amber-400 px-4 py-2 rounded-lg hover:bg-transparent hover:text-yellow-400 transition mt-[-3%]'>
             Login To Account
           </button>
 
           <div>
-            <p>Don't have an account? <a href="##" className='text-yellow-500'>Register here</a></p>
+            <p>Don't have an account? <a href="##" className='text-yellow-500' onClick={()=>navigate('/supplier-register')}>Register here</a></p>
           </div>
         </form>
       </motion.div>

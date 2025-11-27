@@ -81,7 +81,7 @@ const handleSubmit = async (e) => {
                 : 'border-transparent text-gray-600 hover:text-yellow-500'
             }`}
           >
-            Renter Login
+            Renter Register
           </button>
 
           <button
@@ -92,7 +92,7 @@ const handleSubmit = async (e) => {
                 : 'border-transparent text-gray-600 hover:text-yellow-500'
             }`}
           >
-            Supplier Login
+            Supplier Register
           </button>
         </div>
 

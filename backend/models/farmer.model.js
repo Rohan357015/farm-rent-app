@@ -13,6 +13,7 @@ const farmerSchema = new mongoose.Schema(
     role: { type: String, default: "farmer" },
     rentals: { type :Number, default:0},
     ratings: { type: [Number], default: [] },
+    activerentals: { type :Number, default:0},  
   },
   { timestamps: true }
 );

@@ -10,10 +10,13 @@ import { useEffect } from 'react';
 
 
 const FarmerDashboard = () => {
-    const { user, stats, getFarmerDashboard } = useAuthStore();
+    const { user, getFarmerDashboard } = useAuthStore();
     useEffect(() => {
     getFarmerDashboard();
   }, []);
+  const avgRating = user && user.ratings && user.ratings.length > 0
+    ? (user.ratings.reduce((sum, rating) => sum + rating.score, 0) / user.ratings.length).toFixed(1)
+    : "NA";
 
     return (
         <div className="min-h-screen bg-[#12152D] text-white ">
@@ -30,9 +33,9 @@ const FarmerDashboard = () => {
                     <p className="text-gray-400">{user?.location}</p>
                 </section>
                 <section className='flex items-center justify-around text-lg font-serif'>
-                    <div className='flex flex-col items-center'><h2 className='text-green-900'> {stats?.rentalCount}</h2><p>Rentals</p></div>
-                    <div className='flex flex-col items-center'><h2 className='text-green-900'> {stats?.avgRating}</h2><p>Ratings</p></div>
-                    <div className='flex flex-col items-center'><h2 className='text-green-900'>{stats?.activeRentals}</h2><p>Active</p></div>
+                    <div className='flex flex-col items-center'><h2 className='text-green-900'>{user?.rentals} </h2><p>Rentals</p></div>
+                    <div className='flex flex-col items-center'><h2 className='text-green-900'> {avgRating} </h2><p>Ratings</p></div>
+                    <div className='flex flex-col items-center'><h2 className='text-green-900'>{user?.activerentals}</h2><p>Active</p></div>
                 </section>
                 <section className="weather">
                  <AutoWeather/>

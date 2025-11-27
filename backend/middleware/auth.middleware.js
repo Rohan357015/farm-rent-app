@@ -13,10 +13,10 @@ export const ProtectRoute = async (req, res, next) => {
       return res.status(401).json({ message: "Unauthorized - No token provided" });
     }
 
-    // ✅ Verify token
+    
     const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
 
-    // ✅ Find user in either Farmer or Supplier collection
+    
     let user =
       (await Farmer.findById(decoded.userId).select("-password")) ||
       (await Supplier.findById(decoded.userId).select("-password"));

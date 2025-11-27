@@ -22,7 +22,9 @@ function SupplierLogin() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     SupplierLogin(formData);
+    navigate('/supplier-dashboard');
   }
   return (
     <div className='bg-[#12152D] h-screen flex justify-around items-center text-white overflow-hidden'>

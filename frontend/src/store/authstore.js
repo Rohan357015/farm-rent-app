@@ -7,10 +7,12 @@ import { create } from "zustand";
 
 
 
+
 export const useAuthStore =  create((set, get) => ({
 	user: null,
 	loading: false,
 	checkingAuth: true,
+    stats : null,
 
     SupplierRegister : async (supplierData) => {
         set({loading: true});
@@ -55,5 +57,38 @@ export const useAuthStore =  create((set, get) => ({
             toast.error("Error logging in supplier");
             set({loading: false});
         }   
-    }
+    },
+    // ...existing code...
+    farmerLogout: async () => {
+        set({loading: true});
+        try {
+            await axios.post("/auth/farmer/logout");
+            toast.success("Farmer logged out successfully");
+            set({user: null, loading: false});
+        } catch (error) {
+            toast.error("Error logging out farmer");
+            set({loading: false});
+        }
+    },
+// ...existing code...
+   getFarmerDashboard: async () => {
+  set({ loading: true });
+  const farmerId = get().user?._id;   // assume login sets user._id
+  if (!farmerId) {
+    set({ loading: false });
+    return;
+  }
+  try {
+    const response = await axios.get(`/auth/farmer/getfarmer?id=${farmerId}`);
+    set({
+      user: response.data.user,
+      stats: response.data.stats,
+      loading: false
+    });
+  } catch (error) {
+    toast.error("Error fetching farmer dashboard");
+    set({ loading: false });
+  }
+}
+
 }))

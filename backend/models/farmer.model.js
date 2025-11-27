@@ -11,6 +11,8 @@ const farmerSchema = new mongoose.Schema(
     location: { type: String },
     landSize: { type: Number }, 
     role: { type: String, default: "farmer" },
+    rentals: { type :Number, default:0},
+    ratings: { type: [Number], default: [] },
   },
   { timestamps: true }
 );

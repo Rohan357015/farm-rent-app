@@ -5,16 +5,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Tractor, Star, Activity } from "lucide-react";
 import AutoWeather from '../../components/weatherApp.jsx';
 import MainDropDown from '../dashboard/MainDropDown.jsx';
-import { useAuthStore } from '../../store/authstore.js';
-import { useEffect } from 'react';
+import Supplier from '../../../../backend/models/supplier.model.js';
 
 
-const FarmerDashboard = () => {
-    const { user, stats, getFarmerDashboard } = useAuthStore();
-    useEffect(() => {
-    getFarmerDashboard();
-  }, []);
-
+const SupplierDashboard = () => {
     return (
         <div className="min-h-screen bg-[#12152D] text-white ">
             <FarmerNavabar />
@@ -26,13 +20,13 @@ const FarmerDashboard = () => {
                         <FontAwesomeIcon  className =" text-3xl" icon = {faUser}/>
                      
                     </div>
-                    <h3 className='font-semibold text-[1rem] '>{user?.name}</h3>
-                    <p className="text-gray-400">{user?.location}</p>
+                    <h3 className='font-semibold text-[1rem] '>Rohan Mishra</h3>
+                    <p className="text-gray-400">address of the farmer</p>
                 </section>
                 <section className='flex items-center justify-around text-lg font-serif'>
-                    <div className='flex flex-col items-center'><h2 className='text-green-900'> {stats?.rentalCount}</h2><p>Rentals</p></div>
-                    <div className='flex flex-col items-center'><h2 className='text-green-900'> {stats?.avgRating}</h2><p>Ratings</p></div>
-                    <div className='flex flex-col items-center'><h2 className='text-green-900'>{stats?.activeRentals}</h2><p>Active</p></div>
+                    <div className='flex flex-col items-center'><h2 className='text-green-900'> 12</h2><p>Rentals</p></div>
+                    <div className='flex flex-col items-center'><h2 className='text-green-900'> 4.8</h2><p>Ratings</p></div>
+                    <div className='flex flex-col items-center'><h2 className='text-green-900'>3</h2><p>Active</p></div>
                 </section>
                 <section className="weather">
                  <AutoWeather/>
@@ -45,11 +39,11 @@ const FarmerDashboard = () => {
 
             <div className="info bg-yellow-50 text-black w-[80%] h-screen overflow-y-auto flex justify-center items-center"
                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-                <h1 className="text-3xl font-bold mb-4">Welcome to your Dashboard, {user?.name}</h1>
+                <h1 className="text-3xl font-bold mb-4">Welcome to your Dashboard</h1>
             </div>
              </div>
         </div>
     );
 }
 
-export default FarmerDashboard;
+export default SupplierDashboard;

@@ -24,7 +24,7 @@ export const supplierSignup = async (req, res) => {
 export const supplierLogin = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const supplier = await Supplier.findOne({ email });
+    const supplier = await Supplier.findOne({ email,role:"supplier" });
     if (!supplier || !(await supplier.comparePassword(password))) {
       return res.status(400).json({ message: "Invalid email or password" });
     }

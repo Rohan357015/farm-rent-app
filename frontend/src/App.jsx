@@ -8,6 +8,7 @@ import FarmerRegister from "./pages/FarmerRegister";
 import SupplierRegister from "./pages/SupplierRegister";
 import { ThemeProvider } from "next-themes";
 import FarmerDashboard from "./pages/dashboard/farmerDashboard.jsx";
+import SupplierDashboard from "./pages/dashboard/supplierDashboard.jsx";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/farmer-register" element={<FarmerRegister />} />
         <Route path="/supplier-register" element={<SupplierRegister />} />
         <Route path="/farmer-dashboard" element={<FarmerDashboard />} />
+        <Route path="/supplier-dashboard" element={<SupplierDashboard />} />
       </Routes>
       <Toaster />
      

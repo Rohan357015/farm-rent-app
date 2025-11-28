@@ -8,14 +8,32 @@ export const supplierSignup = async (req, res) => {
 
   try {
     const existingSupplier = await Supplier.findOne({ email });
-    if (existingSupplier) return res.status(400).json({ message: "Supplier already exists" });
+    if (existingSupplier)
+      return res.status(400).json({ message: "Supplier already exists" });
 
-    const supplier = await Supplier.create({ name, email, password, companyName, phone, location });
+    const supplier = await Supplier.create({
+      name,
+      email,
+      password,
+      companyName,
+      phone,
+      location,
+    });
+
     const { accessToken, refreshToken } = generateTokens(supplier._id);
     await storeRefreshToken(supplier._id, refreshToken);
     setCookies(res, accessToken, refreshToken);
 
-    res.status(201).json({ id: supplier._id, name: supplier.name, email: supplier.email, role: supplier.role });
+    res.status(201).json({
+      message: "Supplier registered successfully",
+      supplier: {
+        id: supplier._id,
+        name: supplier.name,
+        email: supplier.email,
+        role: supplier.role, // make sure default role = "supplier" in model
+        companyName: supplier.companyName,
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -24,7 +42,7 @@ export const supplierSignup = async (req, res) => {
 export const supplierLogin = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const supplier = await Supplier.findOne({ email,role:"supplier" });
+    const supplier = await Supplier.findOne({ email, role: "supplier" });
     if (!supplier || !(await supplier.comparePassword(password))) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
@@ -33,7 +51,16 @@ export const supplierLogin = async (req, res) => {
     await storeRefreshToken(supplier._id, refreshToken);
     setCookies(res, accessToken, refreshToken);
 
-    res.json({ message: "Login successful", id: supplier._id, name: supplier.name, email: supplier.email, role: supplier.role });
+    res.json({
+      message: "Supplier logged in successfully",
+      supplier: {
+        id: supplier._id,
+        name: supplier.name,
+        email: supplier.email,
+        role: supplier.role,
+        companyName: supplier.companyName,
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -43,7 +70,10 @@ export const supplierLogout = async (req, res) => {
   try {
     const refreshToken = req.cookies.refreshToken;
     if (refreshToken) {
-      const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+      const decoded = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET
+      );
       await redis.del(`refresh_token:${decoded.userId}`);
     }
     res.clearCookie("accessToken");
@@ -53,10 +83,20 @@ export const supplierLogout = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 export const getSupplierProfile = async (req, res) => {
-    try{
-       res.json({ message:"get data Success", supplier:req.user});
-    } catch (error) {
-       res.status(500).json({ message: error.message });
-    }
-}
+  try {
+    res.json({
+      message: "Supplier Profile Accessed",
+      supplier: {
+        id: req.user._id,
+        name: req.user.name,
+        email: req.user.email,
+        role: req.user.role,
+        companyName: req.user.companyName,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

@@ -7,6 +7,7 @@ export const useAuthStore = create((set, get) => ({
   loading: false,
   checkingAuth: true,
   stats: null,
+  supplierStats: null,
 
   // ------------------- SUPPLIER REGISTER -------------------
   SupplierRegister: async (supplierData) => {
@@ -134,7 +135,7 @@ export const useAuthStore = create((set, get) => ({
       );
 
       // backend: { message, supplier: {...} }
-      set({ user: response.data.supplier, loading: false });
+      set({ supplierStats: response.data.supplier, loading: false });
 
       return response.data.supplier;
     } catch (error) {

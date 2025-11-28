@@ -5,7 +5,11 @@ import Supplier from '../models/supplier.model.js';
 
 export const farmerRoute = async (req, res, next) => {
     try{
-        if(req.Farmer.role !== 'farmer'){
+        // Check if user exists and has farmer role
+        if(!req.user){
+            return res.status(401).json({message: "Unauthorized - Please login first"});
+        }
+        if(req.user.role !== 'farmer'){
             return res.status(403).json({message: "Access denied. Farmers only."});
         }
         next();
@@ -16,7 +20,11 @@ export const farmerRoute = async (req, res, next) => {
 
 export const supplierRoute = async (req, res, next) => {
     try{
-        if(req.Supplier.role !== 'supplier'){
+        // Check if user exists and has supplier role
+        if(!req.user){
+            return res.status(401).json({message: "Unauthorized - Please login first"});
+        }
+        if(req.user.role !== 'supplier'){
             return res.status(403).json({message: "Access denied. Suppliers only."});
         }
         next();

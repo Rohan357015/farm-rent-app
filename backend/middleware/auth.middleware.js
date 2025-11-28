@@ -16,13 +16,19 @@ export const ProtectRoute = async (req, res, next) => {
     
     const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
 
+    // Try to find user in both collections explicitly
+    const farmer = await Farmer.findById(decoded.userId).select("-password");
+    const supplier = await Supplier.findById(decoded.userId).select("-password");
     
-    let user =
-      (await Farmer.findById(decoded.userId).select("-password")) ||
-      (await Supplier.findById(decoded.userId).select("-password"));
+    const user = farmer || supplier;
 
     if (!user) {
       return res.status(401).json({ message: "Unauthorized - User not found" });
+    }
+
+    // Verify user has a valid role
+    if (user.role !== "farmer" && user.role !== "supplier") {
+      return res.status(401).json({ message: "Unauthorized - Invalid user role" });
     }
 
     // ye user ko request me attach kar do jisse aage use kar sako taaki koi bhi route handler me user ki details mil jaye

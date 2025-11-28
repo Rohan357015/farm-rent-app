@@ -20,14 +20,12 @@ function SupplierLogin() {
   }
   const {SupplierLogin} = useAuthStore();
 
-  const handleSubmit =  (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-     SupplierLogin(formData);
-    
-    navigate('/supplier-dashboard');
-    toast.success("Login successful");
-    
+    const success = await SupplierLogin(formData);
+    if (success) {
+      navigate('/supplier-dashboard');
+    }
   }
   return (
     <div className='bg-[#12152D] h-screen flex justify-around items-center text-white overflow-hidden'>

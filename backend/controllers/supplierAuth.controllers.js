@@ -1,4 +1,5 @@
 import Supplier from "../models/supplier.model.js";
+import Farmer from "../models/farmer.model.js";
 import jwt from "jsonwebtoken";
 import { generateTokens, storeRefreshToken, setCookies } from "../utils/token.js";
 import { redis } from "../lib/redis.js";
@@ -7,10 +8,15 @@ export const supplierSignup = async (req, res) => {
   const { name, email, password, companyName, phone, location } = req.body;
 
   try {
+    // Check if email exists in either Farmer or Supplier collection
+    const existingFarmer = await Farmer.findOne({ email });
     const existingSupplier = await Supplier.findOne({ email });
-    if (existingSupplier)
-      return res.status(400).json({ message: "Supplier already exists" });
+    
+    if (existingFarmer || existingSupplier) {
+      return res.status(400).json({ message: "Email already registered" });
+    }
 
+    // Always set role to "supplier" - don't accept it from request body
     const supplier = await Supplier.create({
       name,
       email,
@@ -18,6 +24,7 @@ export const supplierSignup = async (req, res) => {
       companyName,
       phone,
       location,
+      role: "supplier"
     });
 
     const { accessToken, refreshToken } = generateTokens(supplier._id);
@@ -42,8 +49,15 @@ export const supplierSignup = async (req, res) => {
 export const supplierLogin = async (req, res) => {
   const { email, password } = req.body;
   try {
+    // First check if supplier exists with correct role
     const supplier = await Supplier.findOne({ email, role: "supplier" });
-    if (!supplier || !(await supplier.comparePassword(password))) {
+    if (!supplier) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    // Then verify password
+    const isPasswordValid = await supplier.comparePassword(password);
+    if (!isPasswordValid) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
@@ -58,6 +72,7 @@ export const supplierLogin = async (req, res) => {
         name: supplier.name,
         email: supplier.email,
         role: supplier.role,
+        location: supplier.location,
         companyName: supplier.companyName,
       },
     });
@@ -93,6 +108,7 @@ export const getSupplierProfile = async (req, res) => {
         name: req.user.name,
         email: req.user.email,
         role: req.user.role,
+        location: req.user.location,
         companyName: req.user.companyName,
       },
     });

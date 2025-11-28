@@ -20,10 +20,12 @@ const handleChange = (e) => {
 }
 const {FarmerLogin} = useAuthStore();
 
-const handleSubmit = (e) => {
+const handleSubmit = async (e) => {
   e.preventDefault();
-  FarmerLogin(formData);
-  navigate('/farmer-dashboard');
+  const success = await FarmerLogin(formData);
+  if (success) {
+    navigate('/farmer-dashboard');
+  }
 }
   return (
     <div className='bg-[#12152D] h-screen flex justify-around items-center text-white overflow-hidden'>

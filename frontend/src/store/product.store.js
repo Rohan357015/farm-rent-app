@@ -3,10 +3,11 @@ import { toast } from "react-hot-toast";
 import axios from "../lib/axios.js";
 
 export const useProductStore = create((set, get) => ({
-  loading: false,
+   loading: false,
   products: [],
-  supplierProducts: [], // Products for logged-in supplier
+  supplierProducts: [],
   productDetails: null,
+  detailsLoading: false,
 
   // ------------------- GET SUPPLIER PRODUCTS -------------------
   getSupplierProducts: async () => {
@@ -112,4 +113,53 @@ export const useProductStore = create((set, get) => ({
       return false;
     }
   },
+  getFarmerProducts: async () => {
+    set({ loading: true });
+    try {
+      console.log("🔍 Fetching farmer products from /products/farmer/products");
+      const response = await axios.get("/products/farmer/products");
+      console.log("✅ Response received:", response);
+      console.log("📦 Response data:", response.data);
+      console.log("📊 Number of products:", Array.isArray(response.data) ? response.data.length : "Not an array");
+      
+      const productsArray = Array.isArray(response.data) ? response.data : [];
+      
+      set({ 
+        products: productsArray,
+        loading: false 
+      });
+      
+      console.log("✅ Products set in store:", productsArray.length);
+      return productsArray;
+    } catch (error) {
+      console.error("❌ Failed to fetch farmer products", error);
+      console.error("Error response:", error?.response);
+      console.error("Error data:", error?.response?.data);
+      toast.error(
+        error?.response?.data?.message || "Failed to fetch equipment"
+      );
+      set({ loading: false, products: [] });
+      return [];
+    }
+  },
+  getProductDetails: async (id) => {
+    set({ detailsLoading: true });
+    try {
+      const response = await axios.get(`/products/${id}`);
+
+      set({
+        productDetails: response.data || null,
+        detailsLoading: false,
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching product details:", error);
+      toast.error(
+        error?.response?.data?.message || "Failed to load equipment details"
+      );
+      set({ detailsLoading: false, productDetails: null });
+      return null;
+    }
+  }
 }));

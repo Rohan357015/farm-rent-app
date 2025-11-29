@@ -11,6 +11,7 @@ import FarmerDashboard from "./pages/dashboard/farmerDashboard.jsx";
 import SupplierDashboard from "./pages/dashboard/supplierDashboard.jsx";
 import Equipmentsforms from "./pages/forms/equipments.forms.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import EquipmentDetails from "./pages/equipment-page.jsx";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/farmer-dashboard" element={<ProtectedRoute allowedRole="farmer"><FarmerDashboard /></ProtectedRoute>} />
         <Route path="/supplier-dashboard" element={<ProtectedRoute allowedRole="supplier"><SupplierDashboard /></ProtectedRoute>} />
         <Route path="/equipments-form" element={<Equipmentsforms />} />
+        <Route path="/equipment/:id" element={<EquipmentDetails />} />
       </Routes>
       <Toaster />
      

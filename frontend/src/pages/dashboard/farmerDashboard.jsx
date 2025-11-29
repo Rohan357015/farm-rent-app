@@ -7,6 +7,7 @@ import AutoWeather from '../../components/weatherApp.jsx';
 import MainDropDown from '../dashboard/MainDropDown.jsx';
 import { useAuthStore } from '../../store/authstore.js';
 import { useEffect } from 'react';
+import EquipmentBrowser from './featured.jsx';
 
 
 const FarmerDashboard = () => {
@@ -46,9 +47,9 @@ const FarmerDashboard = () => {
                 </section>
             </div>
 
-            <div className="info bg-yellow-50 text-black w-[80%] h-screen overflow-y-auto flex justify-center items-center"
+            <div className="info bg-yellow-50 text-black w-[80%] h-screen overflow-y-auto flex  flex-col justify-start items-center"
                  style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-                <h1 className="text-3xl font-bold mb-4">Welcome to your Dashboard, {user?.name}</h1>
+                    <EquipmentBrowser />
             </div>
              </div>
         </div>

@@ -24,14 +24,19 @@ function Equipmentsforms() {
     pincode: "",
     radius: "",
     agreed: false,
+    images: [], // images will be stored here (base64)
   });
+
+  // image states
+  const [imagesPreview, setImagesPreview] = useState([]);
 
   const { PostProducts } = useProductStore();
 
+  // ---------------------------- HANDLE INPUT CHANGE ----------------------------
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    // checkboxes for features (array)
+    // features (checkbox array)
     if (name === "features") {
       if (checked) {
         setFormData((prev) => ({
@@ -47,32 +52,64 @@ function Equipmentsforms() {
       return;
     }
 
-    // single checkbox / radio / others
+    // checkbox (boolean)
     if (type === "checkbox") {
       setFormData((prev) => ({
         ...prev,
         [name]: checked,
       }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
+      return;
     }
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
+  // ---------------------------- HANDLE IMAGE UPLOAD ----------------------------
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+
+    if (files.length > 5) {
+      alert("You can upload maximum 5 images!");
+      return;
+    }
+
+    setImagesPreview([]);
+    setFormData((prev) => ({ ...prev, images: [] }));
+
+    files.forEach((file) => {
+      // show preview
+      const previewURL = URL.createObjectURL(file);
+      setImagesPreview((prev) => [...prev, previewURL]);
+
+      // convert image → base64
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({
+          ...prev,
+          images: [...prev.images, reader.result], // base64
+        }));
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // ---------------------------- SUBMIT HANDLER ----------------------------
   const handleSubmit = (e) => {
     e.preventDefault();
-    // yahan API / store call
     PostProducts(formData);
     console.log("Submitted formData:", formData);
   };
 
+  // ============================== FORM UI ==============================
   return (
     <>
-      <div className="w-full mx-auto  bg-yellow-50 ">
+      <div className="w-full mx-auto bg-yellow-50">
+        
         {/* ===== TOP HEADER ===== */}
-        <div className="bg-gradient-to-b from-green-700 to-green-600 text-white p-10  shadow">
+        <div className="bg-gradient-to-b from-green-700 to-green-600 text-white p-10 shadow">
           <h1 className="text-4xl font-bold text-center">List Your Equipment</h1>
           <p className="text-center text-lg mt-2">
             Fill in the details to list your farm equipment on AgroRent
@@ -80,22 +117,20 @@ function Equipmentsforms() {
         </div>
 
         {/* ===== MAIN FORM CARD ===== */}
-        <div className="bg-white   w-[80%] mx-auto  rounded-xl mt-10 shadow p-10 space-y-14">
+        <div className="bg-white w-[80%] mx-auto rounded-xl mt-10 shadow p-10 space-y-14">
           <form action="" onSubmit={handleSubmit}>
-            {/* ================================
+
+            {/* ==============================
                 1. BASIC INFORMATION
-            ================================= */}
+            =============================== */}
             <section className="text-black">
-              <h2 className="text-2xl font-semibold text-green-700">
-                1. Basic Information
-              </h2>
+              <h2 className="text-2xl font-semibold text-green-700">1. Basic Information</h2>
               <hr className="border-yellow-500 my-2" />
 
               <div className="grid grid-cols-2 gap-8 mt-6">
+
                 <div>
-                  <label className=" text-green-600 font-semibold">
-                    Equipment Name *
-                  </label>
+                  <label className="text-green-600 font-semibold">Equipment Name *</label>
                   <input
                     className="w-full bg-gray-50 p-3 rounded border"
                     placeholder="e.g., John Deere Tractor"
@@ -106,9 +141,7 @@ function Equipmentsforms() {
                 </div>
 
                 <div>
-                  <label className=" text-green-600 font-semibold">
-                    Category *
-                  </label>
+                  <label className="text-green-600 font-semibold">Category *</label>
                   <select
                     className="w-full bg-gray-100 p-3 rounded border"
                     name="category"
@@ -116,9 +149,11 @@ function Equipmentsforms() {
                     onChange={handleChange}
                   >
                     <option value="">Select category</option>
-                    <option value="tractor">Tractor</option>
-                    <option value="harvester">Harvester</option>
-                    <option value="implement">Implement</option>
+                    <option value="Tractors">Tractors</option>
+                    <option value="Harvesters">Harvesters</option>
+                    <option value="Plows">Plows</option>
+                    <option value="Seeders">Seeders</option>
+                    <option value="Irrigation">Irrigation</option>
                   </select>
                 </div>
 
@@ -126,7 +161,6 @@ function Equipmentsforms() {
                   <label className="font-medium">Brand *</label>
                   <input
                     className="w-full bg-gray-100 p-3 rounded border"
-                    placeholder="John Deere"
                     name="brand"
                     value={formData.brand}
                     onChange={handleChange}
@@ -137,7 +171,6 @@ function Equipmentsforms() {
                   <label className="font-medium">Model *</label>
                   <input
                     className="w-full bg-gray-100 p-3 rounded border"
-                    placeholder="5310"
                     name="model"
                     value={formData.model}
                     onChange={handleChange}
@@ -174,8 +207,7 @@ function Equipmentsforms() {
                         value="excellent"
                         checked={formData.condition === "excellent"}
                         onChange={handleChange}
-                      />{" "}
-                      Excellent
+                      /> Excellent
                     </label>
                     <label>
                       <input
@@ -184,8 +216,7 @@ function Equipmentsforms() {
                         value="good"
                         checked={formData.condition === "good"}
                         onChange={handleChange}
-                      />{" "}
-                      Good
+                      /> Good
                     </label>
                     <label>
                       <input
@@ -194,8 +225,7 @@ function Equipmentsforms() {
                         value="fair"
                         checked={formData.condition === "fair"}
                         onChange={handleChange}
-                      />{" "}
-                      Fair
+                      /> Fair
                     </label>
                   </div>
                 </div>
@@ -206,7 +236,6 @@ function Equipmentsforms() {
                 <textarea
                   className="w-full bg-gray-100 p-3 rounded border"
                   rows="4"
-                  placeholder="Describe your equipment in detail..."
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
@@ -214,24 +243,41 @@ function Equipmentsforms() {
               </div>
             </section>
 
-            {/* ================================
+            {/* ==============================
                 2. EQUIPMENT IMAGES
-            ================================= */}
+            =============================== */}
             <section>
-              <h2 className="text-2xl font-semibold text-green-700">
-                2. Equipment Images
-              </h2>
+              <h2 className="text-2xl font-semibold text-green-700">2. Equipment Images</h2>
               <hr className="border-yellow-500 my-2" />
 
               <div className="mt-4 border-2 border-dashed border-yellow-500 p-8 text-center rounded-xl">
                 <p className="text-gray-600">Upload 3–5 clear images</p>
-                {/* Image upload handling baad me add kar sakte ho */}
+
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="mt-4"
+                />
+
+                {imagesPreview.length > 0 && (
+                  <div className="mt-6 grid grid-cols-3 gap-4">
+                    {imagesPreview.map((img, index) => (
+                      <img
+                        key={index}
+                        src={img}
+                        className="w-full h-32 object-cover rounded-lg border"
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             </section>
 
-            {/* ================================
+            {/* ==============================
                 3. SPECIFICATIONS & FEATURES
-            ================================= */}
+            =============================== */}
             <section className="text-black">
               <h2 className="text-2xl font-semibold text-green-700">
                 3. Specifications & Features
@@ -259,6 +305,7 @@ function Equipmentsforms() {
                 <div>
                   <p className="font-medium mb-2">Features</p>
                   <div className="grid grid-cols-2 gap-3">
+
                     <label>
                       <input
                         type="checkbox"
@@ -266,9 +313,9 @@ function Equipmentsforms() {
                         value="GPS"
                         checked={formData.features.includes("GPS")}
                         onChange={handleChange}
-                      />{" "}
-                      GPS
+                      /> GPS
                     </label>
+
                     <label>
                       <input
                         type="checkbox"
@@ -276,9 +323,9 @@ function Equipmentsforms() {
                         value="Automatic"
                         checked={formData.features.includes("Automatic")}
                         onChange={handleChange}
-                      />{" "}
-                      Automatic
+                      /> Automatic
                     </label>
+
                     <label>
                       <input
                         type="checkbox"
@@ -286,9 +333,9 @@ function Equipmentsforms() {
                         value="4WD"
                         checked={formData.features.includes("4WD")}
                         onChange={handleChange}
-                      />{" "}
-                      4WD
+                      /> 4WD
                     </label>
+
                     <label>
                       <input
                         type="checkbox"
@@ -296,8 +343,7 @@ function Equipmentsforms() {
                         value="Power Steering"
                         checked={formData.features.includes("Power Steering")}
                         onChange={handleChange}
-                      />{" "}
-                      Power Steering
+                      /> Power Steering
                     </label>
                   </div>
                 </div>
@@ -312,9 +358,9 @@ function Equipmentsforms() {
               </div>
             </section>
 
-            {/* ================================
+            {/* ==============================
                 4. PRICING
-            ================================= */}
+            =============================== */}
             <section className="text-black">
               <h2 className="text-2xl font-semibold text-green-700">
                 4. Pricing
@@ -322,40 +368,16 @@ function Equipmentsforms() {
               <hr className="border-yellow-500 my-2" />
 
               <div className="grid grid-cols-2 gap-8 mt-6">
-                <input
-                  className="bg-gray-100 p-3 rounded border"
-                  placeholder="Daily Rate (₹)"
-                  name="dailyRate"
-                  value={formData.dailyRate}
-                  onChange={handleChange}
-                />
-                <input
-                  className="bg-gray-100 p-3 rounded border"
-                  placeholder="Weekly Rate (₹)"
-                  name="weeklyRate"
-                  value={formData.weeklyRate}
-                  onChange={handleChange}
-                />
-                <input
-                  className="bg-gray-100 p-3 rounded border"
-                  placeholder="Monthly Rate (₹)"
-                  name="monthlyRate"
-                  value={formData.monthlyRate}
-                  onChange={handleChange}
-                />
-                <input
-                  className="bg-gray-100 p-3 rounded border"
-                  placeholder="Security Deposit (₹)"
-                  name="deposit"
-                  value={formData.deposit}
-                  onChange={handleChange}
-                />
+                <input className="bg-gray-100 p-3 rounded border" placeholder="Daily Rate (₹)" name="dailyRate" value={formData.dailyRate} onChange={handleChange} />
+                <input className="bg-gray-100 p-3 rounded border" placeholder="Weekly Rate (₹)" name="weeklyRate" value={formData.weeklyRate} onChange={handleChange} />
+                <input className="bg-gray-100 p-3 rounded border" placeholder="Monthly Rate (₹)" name="monthlyRate" value={formData.monthlyRate} onChange={handleChange} />
+                <input className="bg-gray-100 p-3 rounded border" placeholder="Security Deposit (₹)" name="deposit" value={formData.deposit} onChange={handleChange} />
               </div>
             </section>
 
-            {/* ================================
+            {/* ==============================
                 5. LOCATION & AVAILABILITY
-            ================================= */}
+            =============================== */}
             <section className="text-black">
               <h2 className="text-2xl font-semibold text-green-700">
                 5. Availability & Location
@@ -363,64 +385,26 @@ function Equipmentsforms() {
               <hr className="border-yellow-500 my-2" />
 
               <label className="flex items-center gap-3 mt-4">
-                <input
-                  type="checkbox"
-                  name="available"
-                  checked={formData.available}
-                  onChange={handleChange}
-                />{" "}
-                Available for Rent
+                <input type="checkbox" name="available" checked={formData.available} onChange={handleChange} /> Available for Rent
               </label>
 
               <div className="grid grid-cols-2 gap-8 mt-6">
-                <input
-                  className="bg-gray-100 p-3 rounded border"
-                  placeholder="City"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                />
-                <input
-                  className="bg-gray-100 p-3 rounded border"
-                  placeholder="State"
-                  name="state"
-                  value={formData.state}
-                  onChange={handleChange}
-                />
-                <input
-                  className="bg-gray-100 p-3 rounded border"
-                  placeholder="Pincode"
-                  name="pincode"
-                  value={formData.pincode}
-                  onChange={handleChange}
-                />
-                <input
-                  className="bg-gray-100 p-3 rounded border"
-                  placeholder="Delivery Radius (km)"
-                  name="radius"
-                  value={formData.radius}
-                  onChange={handleChange}
-                />
+                <input className="bg-gray-100 p-3 rounded border" placeholder="City" name="city" value={formData.city} onChange={handleChange} />
+                <input className="bg-gray-100 p-3 rounded border" placeholder="State" name="state" value={formData.state} onChange={handleChange} />
+                <input className="bg-gray-100 p-3 rounded border" placeholder="Pincode" name="pincode" value={formData.pincode} onChange={handleChange} />
+                <input className="bg-gray-100 p-3 rounded border" placeholder="Delivery Radius (km)" name="radius" value={formData.radius} onChange={handleChange} />
               </div>
             </section>
 
-            {/* ================================
-                6. TERMS & SUBMIT
-            ================================= */}
+            {/* ==============================
+                6. TERMS
+            =============================== */}
             <section className="text-black">
-              <h2 className="text-2xl font-semibold text-green-700">
-                6. Terms & Conditions
-              </h2>
+              <h2 className="text-2xl font-semibold text-green-700">6. Terms & Conditions</h2>
               <hr className="border-yellow-500 my-2" />
 
               <label className="flex items-center gap-3 mt-4">
-                <input
-                  type="checkbox"
-                  name="agreed"
-                  checked={formData.agreed}
-                  onChange={handleChange}
-                />{" "}
-                I agree to the Terms & Conditions
+                <input type="checkbox" name="agreed" checked={formData.agreed} onChange={handleChange} /> I agree to the Terms & Conditions
               </label>
             </section>
 
@@ -433,6 +417,7 @@ function Equipmentsforms() {
                 Submit Equipment
               </button>
             </div>
+
           </form>
         </div>
       </div>

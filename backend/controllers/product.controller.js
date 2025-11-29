@@ -1,5 +1,6 @@
 import express from "express";
 import cloudinary from "cloudinary";
+import Farmer from "../models/farmer.model.js";
 
 import { Product } from "../models/product.model.js";
 export const getAllProducts = async (req, res) => {
@@ -102,7 +103,7 @@ export const addProduct = async (req, res) => {
 
       terms: terms || {},
       agreement: agreement || { agreedToTerms: false, verifiedInformation: false },
-      status: status || 'Pending',
+      status: status || 'Approved',
     });
 
     await newProduct.save();
@@ -115,3 +116,57 @@ export const addProduct = async (req, res) => {
     res.status(500).json({ message: errorMessage, error: error.name });
   }
 };
+
+export const farmersGetAllProducts = async (req, res) => {
+    try{
+    console.log("=== Farmer Products Request ===");
+    console.log("User:", req.user?._id, req.user?.role);
+    
+    // First check all products regardless of status
+    const allProducts = await Product.find();
+    console.log(`Total products in database: ${allProducts.length}`);
+    console.log("Products by status:", {
+      Approved: allProducts.filter(p => p.status === "Approved").length,
+      Pending: allProducts.filter(p => p.status === "Pending").length,
+      Rejected: allProducts.filter(p => p.status === "Rejected").length
+    });
+    
+    // Show all approved products to all farmers
+    const products = await Product.find({ status: "Approved" })
+      .populate("supplier", "name email companyName phone location")
+      .sort({ createdAt: -1 }); // Sort by newest first
+    
+    console.log(`Returning ${products.length} approved products`);
+    
+    if (products.length === 0) {
+      console.log("WARNING: No approved products found. Showing all products instead.");
+      // If no approved products, show all products (for testing)
+      const allProductsForFarmer = await Product.find()
+        .populate("supplier", "name email companyName phone location")
+        .sort({ createdAt: -1 });
+      return res.json(allProductsForFarmer);
+    }
+    
+    res.json(products);
+  } catch (error) {
+    console.error("Error retrieving products:", error);
+    res.status(500).json({ message: "product retrieval failed", error: error.message });
+    }
+}
+
+export const getProductById = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id)
+      .populate("supplier", "name email phone location");
+
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.json(product);
+  } catch (error) {
+    console.error("Error loading product:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+

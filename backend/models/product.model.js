@@ -47,7 +47,7 @@ const productSchema = new mongoose.Schema({
   },
     supplier: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Supplier", // Yeh batata hai ki yeh product kis supplier ka hai
+      ref: "Supplier",
       required: true,
     },
   location: {

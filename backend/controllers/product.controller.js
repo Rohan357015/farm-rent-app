@@ -1,5 +1,5 @@
 import express from "express";
-import Cloudinary from "cloudinary";
+import cloudinary from "cloudinary";
 
 import { Product } from "../models/product.model.js";
 export const getAllProducts = async (req, res) => {
@@ -14,6 +14,25 @@ export const getAllProducts = async (req, res) => {
 };
 
 // Your Cloudinary setup
+
+// Get products by supplier (for supplier dashboard)
+export const getSupplierProducts = async (req, res) => {
+  try {
+    const supplierId = req.user._id; // Authenticated supplier ID from middleware
+    
+    const products = await Product.find({ supplier: supplierId })
+      .sort({ createdAt: -1 }); // Sort by newest first
+    
+    res.status(200).json({ 
+      message: "Products fetched successfully", 
+      products,
+      count: products.length 
+    });
+  } catch (error) {
+    console.error("Error retrieving supplier products:", error);
+    res.status(500).json({ message: "Failed to retrieve products" });
+  }
+};
 
 export const addProduct = async (req, res) => {
   try {
@@ -32,42 +51,57 @@ export const addProduct = async (req, res) => {
       additionalNotes,
       pricing,
       availability,
-      supplier,
       location,
       terms,
       agreement,
       status,
     } = req.body;
 
+    // Validate required fields
+    if (!equipmentName || !category) {
+      return res.status(400).json({ message: "Equipment name and category are required" });
+    }
+
+    if (!pricing || !pricing.dailyRate) {
+      return res.status(400).json({ message: "Daily rate is required" });
+    }
+
     let cloudinaryResponse = null;
     
-		if (images) {
-			cloudinaryResponse = await cloudinary.uploader.upload(image, { folder: "products" });
-		}
+    // Handle image upload if images array has items
+    if (images && Array.isArray(images) && images.length > 0) {
+      // If images are provided, upload first image (for now)
+      // TODO: Handle multiple image uploads
+      try {
+        cloudinaryResponse = await cloudinary.uploader.upload(images[0], { folder: "products" });
+      } catch (uploadError) {
+        console.error("Cloudinary upload error:", uploadError);
+        // Continue without image if upload fails
+      }
+    }
 
     const newProduct = new Product({
-      farmer: req.user._id,  // Assuming authenticated user is the farmer
+      supplier: req.user._id,  // Authenticated user is the supplier (from supplierRoute middleware)
       equipmentName,
       category,
-      brand,
-      model,
-      yearOfManufacture,
-      condition,
-      description,
-      images: cloudinaryResponse?.secure_url ? cloudinaryResponse.secure_url : "",
+      brand: brand || "",
+      model: model || "",
+      yearOfManufacture: yearOfManufacture || undefined,
+      condition: condition || "Good",
+      description: description || "",
+      images: cloudinaryResponse?.secure_url ? [cloudinaryResponse.secure_url] : [],
 
-      horsepower,
-      operatingHours,
-      features,
-      additionalNotes,
+      horsepower: horsepower || undefined,
+      operatingHours: operatingHours || undefined,
+      features: features || {},
+      additionalNotes: additionalNotes || "",
 
-      pricing,
-      availability,
-      supplier,
-      location,
+      pricing: pricing || {},
+      availability: availability || { available: true },
+      location: location || {},
 
-      terms,
-      agreement,
+      terms: terms || {},
+      agreement: agreement || { agreedToTerms: false, verifiedInformation: false },
       status: status || 'Pending',
     });
 
@@ -76,6 +110,8 @@ export const addProduct = async (req, res) => {
     res.status(201).json({ message: "Product added successfully", product: newProduct });
   } catch (error) {
     console.error("Error adding product:", error);
-    res.status(500).json({ message: "Product addition failed" });
+    // Return more specific error message
+    const errorMessage = error.message || "Product addition failed";
+    res.status(500).json({ message: errorMessage, error: error.name });
   }
 };

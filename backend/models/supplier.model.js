@@ -12,7 +12,7 @@ const supplierSchema = new mongoose.Schema(
     equipmentList: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Equipment",
+        ref: "Product",
       },
     ],
     role: { type: String, default: "supplier" },

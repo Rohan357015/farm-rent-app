@@ -324,7 +324,7 @@ function DashboardCentre() {
             </div>
           ) : filteredProducts && filteredProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {filteredProducts.map((equipment) => (
+              {filteredProducts.slice(0, 3).map((equipment) => (
                 <div key={equipment._id} className="bg-gray-50 p-4 rounded-xl shadow cursor-pointer hover:shadow-md transition"
                   onClick={() => navigate(`/equipment/${equipment._id}`)}
                 >
@@ -443,6 +443,7 @@ function DashboardCentre() {
               )}
             </div>
           )}
+          <button onClick={()=>navigate("/supplier-equipments")} className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 mt-5 ">See More</button>
         </div>
 
 

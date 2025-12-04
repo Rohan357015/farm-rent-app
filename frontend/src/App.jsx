@@ -13,6 +13,8 @@ import Equipmentsforms from "./pages/forms/equipments.forms.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import EquipmentDetails from "./pages/equipment-page.jsx";
 import { useAuthStore } from "./store/authstore.js";
+import SupplierEquipment from "./pages/utilityPages/SupplierEquipment.jsx";
+import BookingForm from "./pages/forms/bookingForm.jsx";
 
 function App() {
   const { checkAuth, checkingAuth, user } = useAuthStore();
@@ -44,6 +46,8 @@ function App() {
         <Route path="/equipments-form" element={<Equipmentsforms />} />
         <Route path="/equipments-form/:id" element={<Equipmentsforms />} />
         <Route path="/equipment/:id" element={<EquipmentDetails />} />
+        <Route path="/supplier-equipments" element={ user?<ProtectedRoute allowedRole="supplier"><SupplierEquipment /></ProtectedRoute> : <SupplierLogin />} />
+        <Route path="/booking-form/:id" element={ user?<ProtectedRoute allowedRole="farmer"><BookingForm /></ProtectedRoute> : <FarmerLogin />} />
       </Routes>
       <Toaster />
      

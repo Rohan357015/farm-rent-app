@@ -3,8 +3,10 @@ import { MapPin, Star, CheckCircle, Clock } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useProductStore } from "../store/product.store";
 import {useAuthStore} from "../store/authstore.js";
+import { useNavigate } from "react-router-dom";
 
 export default function EquipmentDetails() {
+  const navigate=useNavigate();
   const { id } = useParams();
   const {user}=useAuthStore();
   const { getProductDetails, productDetails, detailsLoading, updateProduct } = useProductStore();
@@ -205,7 +207,9 @@ export default function EquipmentDetails() {
           Add to Cart
         </button>
 
-        <button className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold shadow hover:bg-green-700">
+        <button className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold shadow hover:bg-green-700"
+        onClick={()=>navigate("/booking-form/"+equipment._id)}
+        >
           Book Now
         </button>
       </div>)

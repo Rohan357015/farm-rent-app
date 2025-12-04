@@ -3,8 +3,12 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { useAuthStore } from '../../store/authstore';
+import { useNavigate } from 'react-router-dom';
 
 const FarmerNavabar = () => {
+    const navigate=useNavigate();
+    const {user}=useAuthStore();
     return (
         <nav className='w-full border border-gray-300 bg-white text-black h-[70px] flex justify-between items-center px-8 shadow-2xl'>
             <div className='flex items-center gap-2 text-3xl font-bold'>
@@ -12,11 +16,18 @@ const FarmerNavabar = () => {
             </div>
             <div>
                 <ul className='flex justify-between items-center gap-8 text-lg font-semibold'>
-                    <li><Link to="/farmer-dashboard" className='hover:text-yellow-500 transition'>Dashboard</Link></li>
-                    <li><Link to="/farmer-equipment" className='hover:text-yellow-500 transition'>Equipment</Link></li>
-                    <li><Link to="/farmer-rental" className='hover:text-yellow-500 transition'>Rental</Link></li>
-                    <li><Link to="/farmer-earnings" className='hover:text-yellow-500 transition'>Earnings</Link></li>
-                    <li><Link to="/farmer-help" className='hover:text-yellow-500 transition'>Help</Link></li>
+                    <li><Link to={user.role === "farmer" ? "/farmer-dashboard" : "/supplier-dashboard"} className='hover:text-yellow-500 transition'>Dashboard</Link></li>
+                    <li>
+                        <Link
+                            to={user.role === "farmer" ? "/farmer-equipment" : "/supplier-equipments"}
+                            className='hover:text-yellow-500 transition'
+                        >
+                            Equipment
+                        </Link>
+                    </li>
+                    <li><Link to={user.role === "farmer" ? "/farmer-rental" : "/supplier-rental"} className='hover:text-yellow-500 transition'>Rental</Link></li>
+                    <li><Link to={user.role === "farmer" ? "/farmer-earnings" : "/supplier-earnings"} className='hover:text-yellow-500 transition'>Earnings</Link></li>
+                    <li><Link to={user.role === "farmer" ? "/farmer-help" : "/supplier-help"} className='hover:text-yellow-500 transition'>Help</Link></li>
                 </ul>
             </div>
             <div>

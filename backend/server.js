@@ -6,6 +6,7 @@ import supplierRoutes from './routes/supplier.routes.js';
 import productRouter from './routes/product.routes.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import bookRouter from './routes/book.routes.js';
 
 
 
@@ -26,6 +27,7 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use("/api/auth", farmerRoutes);
 app.use("/api/auth", supplierRoutes);
 app.use("/api/products", productRouter);
+app.use("/api/bookings", bookRouter);
 
 app.listen(PORT, () => {
     connectDB();

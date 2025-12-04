@@ -3,6 +3,7 @@ import { ChevronDown ,LogOut,HelpCircle,User ,Calendar ,Wallet,Search,Stars,Trac
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authstore.js";
 
+
 const SupplierDropDown = () => {
     const [open, setOpen] = useState(false);
     const [open2, setOpen2] = useState(false);
@@ -30,7 +31,7 @@ const SupplierDropDown = () => {
                         <li>
                             <a
                                 className="block p-3 pl-10 hover:bg-gray-400 rounded"
-                                onClick={() => navigate("/browse-equipments")}
+                                onClick={() => navigate("/supplier-equipments")}
                             >
                               <Tractor className="inline-block mr-2" /> My Equipments
                             </a>
@@ -38,7 +39,7 @@ const SupplierDropDown = () => {
                         <li>
                             <a
                                 className="block p-3 pl-10 hover:bg-gray-400 rounded"
-                                onClick={() => navigate("/my-rentals")}
+                                onClick={() => navigate("/supplier-rentals")}
                             >
                                <Calendar className="inline-block mr-2" /> Rental Request
                             </a>
@@ -46,7 +47,7 @@ const SupplierDropDown = () => {
                         <li>
                             <a
                                 className="block p-3 pl-10 hover:bg-gray-400 rounded"
-                                onClick={() => navigate("/payments")}
+                                onClick={() => navigate("/supplier-payments")}
                             >
                                <Wallet className="inline-block mr-2" /> Earnings
                             </a>
@@ -54,7 +55,7 @@ const SupplierDropDown = () => {
                         <li>
                             <a
                                 className="block p-3 pl-10 hover:bg-gray-400 rounded"
-                                onClick={() => navigate("/review-ratings")}
+                                onClick={() => navigate("/supplier-review-ratings")}
                             >
                                <Stars className="inline-block mr-2" /> Review & Ratings
                             </a>
@@ -82,7 +83,7 @@ const SupplierDropDown = () => {
                         <li>
                             <a
                                 className="block p-3 pl-10 hover:bg-gray-400 rounded"
-                                onClick={() => navigate("/profile-settings")}
+                                onClick={() => navigate("/supplier-profile-settings")}
                             >
                               <User className="inline-block mr-2" /> Profile Settings
                             </a>

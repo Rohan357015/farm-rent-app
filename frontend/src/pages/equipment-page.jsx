@@ -2,16 +2,19 @@ import React, { useEffect, useState } from "react";
 import { MapPin, Star, CheckCircle, Clock } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useProductStore } from "../store/product.store";
+import {useAuthStore} from "../store/authstore.js";
 
 export default function EquipmentDetails() {
   const { id } = useParams();
-  const { getProductDetails, productDetails, detailsLoading } = useProductStore();
+  const {user}=useAuthStore();
+  const { getProductDetails, productDetails, detailsLoading, updateProduct } = useProductStore();
 
   const [activeImage, setActiveImage] = useState(0);
   const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
     getProductDetails(id);
+    
   }, [id]);
 
   if (detailsLoading) return <div className="p-6 text-center">Loading...</div>;
@@ -28,7 +31,7 @@ export default function EquipmentDetails() {
 
       {/* ---------------- IMAGE SLIDER ---------------- */}
       <div className="relative w-full h-[380px] bg-gray-200 rounded-xl overflow-hidden">
-        <img src={images[activeImage]} className="w-full h-full object-cover" />
+        <img src={images[activeImage]} className="w-full h-full object-contain" />
 
         {/* Slider arrows */}
         <button
@@ -196,7 +199,8 @@ export default function EquipmentDetails() {
       </div>
 
       {/* ---------------- BUTTONS ---------------- */}
-      <div className="flex justify-end gap-4 mt-12">
+      {
+        user && user.role ==='farmer' && (<div className="flex justify-end gap-4 mt-12">
         <button className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold shadow hover:bg-yellow-600">
           Add to Cart
         </button>
@@ -204,7 +208,9 @@ export default function EquipmentDetails() {
         <button className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold shadow hover:bg-green-700">
           Book Now
         </button>
-      </div>
+      </div>)
+      }
+      
     </div>
   );
 }

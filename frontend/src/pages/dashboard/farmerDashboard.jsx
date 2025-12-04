@@ -8,6 +8,7 @@ import MainDropDown from '../dashboard/MainDropDown.jsx';
 import { useAuthStore } from '../../store/authstore.js';
 import { useEffect } from 'react';
 import EquipmentBrowser from './featured.jsx';
+import { useProductStore } from '../../store/product.store.js';
 
 
 const FarmerDashboard = () => {

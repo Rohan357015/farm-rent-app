@@ -12,8 +12,22 @@ import SupplierDashboard from "./pages/dashboard/supplierDashboard.jsx";
 import Equipmentsforms from "./pages/forms/equipments.forms.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 import EquipmentDetails from "./pages/equipment-page.jsx";
+import { useAuthStore } from "./store/authstore.js";
 
 function App() {
+  const { checkAuth, checkingAuth, user } = useAuthStore();
+
+  React.useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  if (checkingAuth) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-lg">Checking authentication...</p>
+      </div>
+    );
+  }
   return (
     <ThemeProvider attribute="class">
     <div >
@@ -25,9 +39,10 @@ function App() {
         <Route path="/supplier-login" element={<SupplierLogin />} />
         <Route path="/farmer-register" element={<FarmerRegister />} />
         <Route path="/supplier-register" element={<SupplierRegister />} />
-        <Route path="/farmer-dashboard" element={<ProtectedRoute allowedRole="farmer"><FarmerDashboard /></ProtectedRoute>} />
-        <Route path="/supplier-dashboard" element={<ProtectedRoute allowedRole="supplier"><SupplierDashboard /></ProtectedRoute>} />
+        <Route path="/farmer-dashboard" element={ user?<ProtectedRoute allowedRole="farmer"><FarmerDashboard /></ProtectedRoute> : <FarmerLogin />} />
+        <Route path="/supplier-dashboard" element={ user?<ProtectedRoute allowedRole="supplier"><SupplierDashboard /></ProtectedRoute> : <SupplierLogin />} />
         <Route path="/equipments-form" element={<Equipmentsforms />} />
+        <Route path="/equipments-form/:id" element={<Equipmentsforms />} />
         <Route path="/equipment/:id" element={<EquipmentDetails />} />
       </Routes>
       <Toaster />

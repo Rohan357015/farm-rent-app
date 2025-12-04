@@ -161,5 +161,43 @@ export const useProductStore = create((set, get) => ({
       set({ detailsLoading: false, productDetails: null });
       return null;
     }
-  }
+  },
+  updateProduct: async (id, updateData) => {
+    set({ loading: true });
+    try {
+      const response = await axios.put(`/products/update/${id}`, updateData);
+      toast.success(response.data.message || "Product updated successfully");
+      set({ loading: false });
+      
+      // Refresh supplier products list after successful update
+      await get().getSupplierProducts();
+      
+      return true;
+    } catch (error) {
+      console.error("Failed to update product", error?.response || error);
+      const errorMessage = error?.response?.data?.message || error?.message || "Failed to update product";
+      toast.error(errorMessage);
+      set({ loading: false });
+      return false;
+    }
+  },
+  deleteProduct : async (id) => {
+    set({ loading: true });
+    try {
+      const response = await axios.delete(`/products/delete/${id}`);
+      toast.success(response.data.message || "Product deleted successfully");
+      set({ loading: false });
+      
+      // Refresh supplier products list after successful deletion
+      await get().getSupplierProducts();
+      
+      return true;
+    } catch (error) {
+      console.error("Failed to delete product", error?.response || error);
+      const errorMessage = error?.response?.data?.message || error?.message || "Failed to delete product";
+      toast.error(errorMessage);
+      set({ loading: false });
+      return false;
+    }
+  },
 }));

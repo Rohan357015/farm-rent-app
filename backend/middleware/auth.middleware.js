@@ -2,50 +2,80 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import Farmer from "../models/farmer.model.js";
 import Supplier from "../models/supplier.model.js";
+import { generateTokens, setCookies, storeRefreshToken } from "../utils/token.js";
+import { redis } from "../lib/redis.js";
 
 dotenv.config();
 
 export const ProtectRoute = async (req, res, next) => {
   try {
-    const accessToken = req.cookies.accessToken;
+    let accessToken = req.cookies.accessToken;
+    let refreshToken = req.cookies.refreshToken;
 
-    if (!accessToken) {
-      return res.status(401).json({ message: "Unauthorized - No token provided" });
+    if (!accessToken && !refreshToken) {
+      return res.status(401).json({ message: "Unauthorized - No tokens found" });
     }
 
-    
-    const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+    let decoded;
 
-    // Try to find user in both collections explicitly
+    // -------------------------------
+    // 1️⃣ TRY VERIFY ACCESS TOKEN
+    // -------------------------------
+    try {
+      decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+    } catch (error) {
+      // ACCESS TOKEN EXPIRED → TRY REFRESH TOKEN
+      if (error.name === "TokenExpiredError") {
+        console.log("Access token expired → using refresh token.");
+
+        try {
+          // VERIFY REFRESH TOKEN
+          const refreshData = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+
+          // CHECK IF REFRESH TOKEN MATCHES REDIS
+          const storedToken = await redis.get(`refresh_token:${refreshData.userId}`);
+          if (!storedToken || storedToken !== refreshToken) {
+            return res.status(401).json({ message: "Refresh token invalid or expired" });
+          }
+
+          // GENERATE NEW TOKENS
+          const { accessToken: newAccess, refreshToken: newRefresh } =
+            generateTokens(refreshData.userId);
+
+          // STORE NEW REFRESH TOKEN IN REDIS
+          await storeRefreshToken(refreshData.userId, newRefresh);
+
+          // SET NEW COOKIES
+          setCookies(res, newAccess, newRefresh);
+
+          decoded = { userId: refreshData.userId }; // Use refreshed userId
+
+        } catch (refreshError) {
+          console.log("Refresh token expired.");
+          return res.status(401).json({ message: "Session expired. Please log in again." });
+        }
+      } else {
+        return res.status(401).json({ message: "Unauthorized - Invalid access token" });
+      }
+    }
+
+    // -------------------------------
+    // 2️⃣ FETCH USER FROM DB
+    // -------------------------------
     const farmer = await Farmer.findById(decoded.userId).select("-password");
     const supplier = await Supplier.findById(decoded.userId).select("-password");
-    
+
     const user = farmer || supplier;
 
     if (!user) {
-      return res.status(401).json({ message: "Unauthorized - User not found" });
+      return res.status(401).json({ message: "Unauthorized - User does not exist" });
     }
 
-    // Verify user has a valid role
-    if (user.role !== "farmer" && user.role !== "supplier") {
-      return res.status(401).json({ message: "Unauthorized - Invalid user role" });
-    }
-
-    // ye user ko request me attach kar do jisse aage use kar sako taaki koi bhi route handler me user ki details mil jaye
     req.user = user;
+    next();
 
-    next(); // Continue to next middleware or route handler
   } catch (error) {
     console.error("ProtectRoute Error:", error.message);
-
-    if (error.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "Token expired. Please log in again." });
-    }
-
-    if (error.name === "JsonWebTokenError") {
-      return res.status(401).json({ message: "Invalid token." });
-    }
-
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };

@@ -7,6 +7,7 @@ import productRouter from './routes/product.routes.js';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import bookRouter from './routes/book.routes.js';
+import CartRouter from './routes/cart.route.js';
 
 
 
@@ -28,6 +29,7 @@ app.use("/api/auth", farmerRoutes);
 app.use("/api/auth", supplierRoutes);
 app.use("/api/products", productRouter);
 app.use("/api/bookings", bookRouter);
+app.use("/api/cart", CartRouter);
 
 app.listen(PORT, () => {
     connectDB();

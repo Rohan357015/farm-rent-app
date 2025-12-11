@@ -1,68 +1,43 @@
-import Booking from "../models/booking.model.js";
-import { Product } from "../models/product.model.js";
+import express from 'express';
+import Booking from '../models/booking.model.js';
+import {Product} from '../models/product.model.js';
 
+export const addBooking = async (req, res) => {
+  try{
 
-export const BookingForm = async (req, res) => {
-  try {
-    const {
-      productId,
-      rentalId,
+    const {product, farmer, startDate, endDate, pickUpLocation, returnLocation, purpose, operators, totalPrice} = req.body;
+    if(!farmer || !startDate || !endDate || !pickUpLocation || !returnLocation || !purpose){
+      return  res.status(400).json({ message: "All fields are required" });
+    }
+    const days = Math.ceil((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24));
+    if(days <= 0){
+      return res.status(400).json({ message: "End date must be after start date" });
+    }
+    const productId = req.params.id;
+    if(productId !== product){
+      return res.status(400).json({ message: "Product ID mismatch" });
+    }
+    const productData = await Product.findById(productId);
+    if (!productData) return res.status(404).json({ message: "Product not found" });
+
+    const supplier = productData.supplier;
+    const newBooking = new Booking({
+      product: productId,
+      farmer,
       startDate,
       endDate,
+      supplier,
       pickUpLocation,
       returnLocation,
       purpose,
-      totalPrice,
-      operators
-    } = req.body;
-
-    // validate required fields
-    if (!startDate || !endDate || !location || !purpose) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    // fetch product or rental
-    let product = null;
-    let rental = null;
-
-    if (productId) product = await Product.findById(productId);
-    if (rentalId) rental = await Rental.findById(rentalId);
-
-    if (!product && !rental) {
-      return res.status(404).json({ message: "Equipment not found" });
-    }
-
-    const farmerId = req.user._id; // logged-in farmer
-
-    // extract supplier automatically
-    const supplierId = product
-      ? product.supplier
-      : rental.farmer; // rental posted by farmer
-
-    // Create booking document
-    const newBooking = new Booking({
-      rental: rentalId || null,
-      product: productId || null,
-      farmer: farmerId,
-      supplier: supplierId,
-      startDate,
-      endDate,
-      location,
-      purpose,
-      totalPrice,
-      operators: operators || false,
-      status: "Pending",
+      operators,
+      days,
+      totalPrice
     });
-
     await newBooking.save();
-
-    res.status(201).json({
-      message: "Booking request sent successfully",
-      booking: newBooking,
-    });
-
-  } catch (error) {
-    console.error("Booking Error:", error);
-    res.status(500).json({ message: "Booking failed", error: error.message });
+    res.status(201).json(newBooking);
+  }catch(error){
+    console.error("Error creating booking:", error);
+    res.status(500).json({ message: "Failed to create booking", error: error.message });
   }
-};
+}

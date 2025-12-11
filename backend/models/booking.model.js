@@ -2,11 +2,6 @@ import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema(
   {
-    rental: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Rental",
-      required: true,
-    },
     product: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Product",

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown ,LogOut,HelpCircle,User ,Home ,Wallet,Search,Stars } from "lucide-react";
+import { ChevronDown ,LogOut,HelpCircle,User ,Home ,Wallet,Search,Stars,ShoppingCart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authstore.js";
 
@@ -43,6 +43,15 @@ const MainDropDown = () => {
                                <Home className="inline-block mr-2" /> My Rentals
                             </a>
                         </li>
+                         <li>
+                            <a
+                                className="block p-3 pl-10 hover:bg-gray-400 rounded"
+                                onClick={() => navigate("/cart")}
+                            >
+                               <ShoppingCart className="inline-block mr-2" /> Cart
+                            </a>
+                        </li>
+                        
                         <li>
                             <a
                                 className="block p-3 pl-10 hover:bg-gray-400 rounded"

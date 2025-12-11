@@ -2,13 +2,17 @@ import React, { useEffect, useState } from "react";
 import { MapPin, Star, CheckCircle, Clock } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useProductStore } from "../store/product.store";
-import {useAuthStore} from "../store/authstore.js";
+import { useAuthStore } from "../store/authstore.js";
 import { useNavigate } from "react-router-dom";
+import { useCartStore } from "../store/useCartStore.js"
+import { useBookingStore } from "../store/booking.store.js";
 
 export default function EquipmentDetails() {
-  const navigate=useNavigate();
+  const { addBooking } = useBookingStore();
+  const { addToCart } = useCartStore();
+  const navigate = useNavigate();
   const { id } = useParams();
-  const {user}=useAuthStore();
+  const { user } = useAuthStore();
   const { getProductDetails, productDetails, detailsLoading, updateProduct } = useProductStore();
 
   const [activeImage, setActiveImage] = useState(0);
@@ -16,7 +20,7 @@ export default function EquipmentDetails() {
 
   useEffect(() => {
     getProductDetails(id);
-    
+
   }, [id]);
 
   if (detailsLoading) return <div className="p-6 text-center">Loading...</div>;
@@ -56,9 +60,8 @@ export default function EquipmentDetails() {
               key={i}
               src={img}
               onClick={() => setActiveImage(i)}
-              className={`w-16 h-12 rounded-md object-cover border cursor-pointer ${
-                i === activeImage ? "border-green-600" : "border-transparent"
-              }`}
+              className={`w-16 h-12 rounded-md object-cover border cursor-pointer ${i === activeImage ? "border-green-600" : "border-transparent"
+                }`}
             />
           ))}
         </div>
@@ -202,19 +205,30 @@ export default function EquipmentDetails() {
 
       {/* ---------------- BUTTONS ---------------- */}
       {
-        user && user.role ==='farmer' && (<div className="flex justify-end gap-4 mt-12">
-        <button className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold shadow hover:bg-yellow-600">
-          Add to Cart
-        </button>
+        user && user.role === 'farmer' && (<div className="flex justify-end gap-4 mt-12">
+          <button className="px-6 py-3 bg-yellow-500 text-white rounded-lg font-semibold shadow hover:bg-yellow-600"
+            onClick={() => {
+              addToCart({
+                equipmentId: equipment._id,
+                quantity: 1,
+              });
+              navigate('/cart');
+            }}
+          >
+            Add to Cart
+          </button>
 
-        <button className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold shadow hover:bg-green-700"
-        onClick={()=>navigate("/booking-form/"+equipment._id)}
-        >
-          Book Now
-        </button>
-      </div>)
+          <button className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold shadow hover:bg-green-700"
+            onClick={() => {
+              addBooking(equipment._id);
+              navigate(`/booking-form/${equipment._id}`);
+            }}
+          >
+            Book Now
+          </button>
+        </div>)
       }
-      
+
     </div>
   );
 }

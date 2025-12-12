@@ -161,6 +161,17 @@ export default function EquipmentDetails() {
           <SpecBox label="Monthly Rate" value={`₹${equipment.pricing?.monthlyRate || "N/A"}`} />
         </div>
       </div>
+       <div className="mt-10">
+        <h2 className="text-xl font-semibold text-green-700 mb-3">Additional Information</h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <SpecBox label="Daily Operator Charges" value={`₹${equipment.operatorCharges}`} />
+          <SpecBox label="Delivery Prices" value={`₹${equipment.deliveryPrices || "N/A"}`} />
+         
+        </div>
+      </div>
+
+    
 
       {/* ---------------- AVAILABILITY ---------------- */}
       <div className="mt-10">
@@ -220,7 +231,7 @@ export default function EquipmentDetails() {
 
           <button className="px-6 py-3 bg-green-600 text-white rounded-lg font-semibold shadow hover:bg-green-700"
             onClick={() => {
-              addBooking(equipment._id);
+             
               navigate(`/booking-form/${equipment._id}`);
             }}
           >

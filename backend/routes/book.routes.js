@@ -7,6 +7,6 @@ import { addBooking } from '../controllers/booking.controller.js';
 
 const bookRouter = express.Router();
 
-bookRouter.post('/:id', ProtectRoute, addBooking);
+bookRouter.post('/add/:id', ProtectRoute, addBooking);
 
 export default bookRouter;

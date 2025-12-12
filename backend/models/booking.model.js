@@ -46,6 +46,10 @@ const bookingSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    deliveryAndPickup: {
+      type: Boolean,
+      default: false,
+    },
 
     totalPrice: Number,
 

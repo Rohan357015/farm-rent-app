@@ -1,1 +1,8 @@
 @import "tailwindcss";
+.input-field {
+  @apply w-full p-3 rounded-lg border border-black focus:outline-none;
+}
+.input-date {
+  @apply w-full p-3 rounded-lg border border-black focus:outline-none cursor-pointer;
+  padding-right: 38px;
+}

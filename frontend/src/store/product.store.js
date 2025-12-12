@@ -3,7 +3,7 @@ import { toast } from "react-hot-toast";
 import axios from "../lib/axios.js";
 
 export const useProductStore = create((set, get) => ({
-   loading: false,
+  loading: false,
   products: [],
   supplierProducts: [],
   productDetails: null,
@@ -14,9 +14,9 @@ export const useProductStore = create((set, get) => ({
     set({ loading: true });
     try {
       const response = await axios.get("/products/supplier/my-products");
-      set({ 
+      set({
         supplierProducts: response.data.products || [],
-        loading: false 
+        loading: false
       });
       return response.data.products || [];
     } catch (error) {
@@ -33,13 +33,13 @@ export const useProductStore = create((set, get) => ({
   PostProducts: async (formData) => {
     set({ loading: true });
 
-  
+
     const capitalizeFirst = (str) => {
       if (!str) return str;
       return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
     };
 
-   
+
     const toNumber = (value) => {
       if (!value || value === "") return undefined;
       const num = Number(value);
@@ -56,6 +56,11 @@ export const useProductStore = create((set, get) => ({
       // Backend expects capitalized condition: "Excellent", "Good", "Fair"
       condition: capitalizeFirst(formData.condition) || "Good",
       description: formData.description || "",
+      deliveryAndPickup: formData.deliveryAndPickup || false,
+      deliveryPrices: Number(formData.deliveryPrice) || 0,
+      operator: formData.operator || false,
+      operatorCharges: Number(formData.operatorPrice) || 0,
+
 
       // Currently no images upload from this form - send empty array
       images: [],
@@ -100,10 +105,10 @@ export const useProductStore = create((set, get) => ({
       const response = await axios.post("/products/add", payload);
       toast.success(response.data.message || "Product added successfully");
       set({ loading: false });
-      
+
       // Refresh supplier products list after successful addition
       await get().getSupplierProducts();
-      
+
       return true;
     } catch (error) {
       console.error("Failed to add product", error?.response || error);
@@ -121,14 +126,14 @@ export const useProductStore = create((set, get) => ({
       console.log("✅ Response received:", response);
       console.log("📦 Response data:", response.data);
       console.log("📊 Number of products:", Array.isArray(response.data) ? response.data.length : "Not an array");
-      
+
       const productsArray = Array.isArray(response.data) ? response.data : [];
-      
-      set({ 
+
+      set({
         products: productsArray,
-        loading: false 
+        loading: false
       });
-      
+
       console.log("✅ Products set in store:", productsArray.length);
       return productsArray;
     } catch (error) {
@@ -168,10 +173,10 @@ export const useProductStore = create((set, get) => ({
       const response = await axios.put(`/products/update/${id}`, updateData);
       toast.success(response.data.message || "Product updated successfully");
       set({ loading: false });
-      
+
       // Refresh supplier products list after successful update
       await get().getSupplierProducts();
-      
+
       return true;
     } catch (error) {
       console.error("Failed to update product", error?.response || error);
@@ -181,16 +186,16 @@ export const useProductStore = create((set, get) => ({
       return false;
     }
   },
-  deleteProduct : async (id) => {
+  deleteProduct: async (id) => {
     set({ loading: true });
     try {
       const response = await axios.delete(`/products/delete/${id}`);
       toast.success(response.data.message || "Product deleted successfully");
       set({ loading: false });
-      
+
       // Refresh supplier products list after successful deletion
       await get().getSupplierProducts();
-      
+
       return true;
     } catch (error) {
       console.error("Failed to delete product", error?.response || error);

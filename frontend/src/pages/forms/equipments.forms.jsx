@@ -21,6 +21,10 @@ function Equipmentsforms() {
     brand: "",
     model: "",
     year: "",
+    operator: false,
+    deliveryAndPickup: false,
+    deliveryPrices: 0,
+    operatorCharges: 0,
     condition: "",
     description: "",
     horsepower: "",
@@ -60,6 +64,12 @@ function Equipmentsforms() {
         brand: p.brand || "",
         model: p.model || "",
         year: p.yearOfManufacture || "",
+
+        deliveryAndPickup: p.deliveryAndPickup || false,
+        deliveryPrices: p.deliveryPrices || 0,   // ⭐ ADD THIS
+        operator: p.operator || false,
+        operatorCharges: p.operatorCharges || 0, // ⭐ ADD THIS
+
         condition: p.condition?.toLowerCase() || "",
         description: p.description || "",
         horsepower: p.horsepower || "",
@@ -455,6 +465,73 @@ function Equipmentsforms() {
                     <option value="Rejected">Rejected</option>
                   </select>
                 </div>
+              </section>
+
+
+              {/* 5. LOCATION */}
+              <section className="text-black">
+                <h2 className="text-2xl font-semibold text-green-700">
+                  4.4 Delivery & Operator Options
+                </h2>
+                <hr className="border-yellow-500 my-2" />
+
+                {/* DELIVERY OPTION */}
+                <label className="flex items-center gap-3 mt-4">
+                  <input
+                    type="checkbox"
+                    name="deliveryAndPickup"
+                    checked={formData.deliveryAndPickup}
+                    onChange={handleChange}
+                  />
+                  Delivery & Pickup Available
+                </label>
+
+                {/* SHOW DELIVERY PRICE INPUT WHEN CHECKED */}
+                {formData.deliveryAndPickup && (
+                  <div className="mt-3 ml-6">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Delivery & Pickup Charge (₹)
+                    </label>
+                    <input
+                      type="number"
+                      name="deliveryPrices"
+                      placeholder="Enter delivery price"
+                      value={formData.deliveryPrices}
+                      onChange={handleChange}
+                      className="w-64 p-2 border border-black rounded mt-1"
+                    />
+                  </div>
+                )}
+
+
+                {/* OPERATOR OPTION */}
+                <label className="flex items-center gap-3 mt-4">
+                  <input
+                    type="checkbox"
+                    name="operator"
+                    checked={formData.operator}
+                    onChange={handleChange}
+                  />
+                  Operator Available
+                </label>
+
+                {/* SHOW OPERATOR PRICE INPUT WHEN CHECKED */}
+                {formData.operator && (
+                  <div className="mt-3 ml-6">
+                    <label className="block text-sm font-medium text-gray-700">
+                      Operator Charge (₹ per day)
+                    </label>
+                    <input
+                      type="number"
+                      name="operatorCharges"
+                      placeholder="Enter operator cost per day"
+                      value={formData.operatorCharges}
+                      onChange={handleChange}
+                      className="w-64 p-2 border border-black rounded mt-1"
+                    />
+                  </div>
+                )}
+
               </section>
 
 

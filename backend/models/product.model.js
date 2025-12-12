@@ -9,6 +9,12 @@ const productSchema = new mongoose.Schema({
   yearOfManufacture: { type: Number },
   condition: { type: String, enum: ["Excellent", "Good", "Fair"], default: "Good" },
   description: { type: String },
+  deliveryAndPickup: { type: Boolean, default: false },
+  deliveryPrices: {
+   type:Number,default:0
+  },
+  operator  : { type: Boolean, default: false },
+  operatorCharges: { type: Number, default: 0 },
 
   // Equipment Images
   images: [{ type: String }],

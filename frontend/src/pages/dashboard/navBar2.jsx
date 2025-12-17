@@ -6,6 +6,7 @@ import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { useAuthStore } from '../../store/authstore';
 import { useNavigate } from 'react-router-dom';
 
+
 const FarmerNavabar = () => {
     const navigate=useNavigate();
     const {user}=useAuthStore();
@@ -25,7 +26,7 @@ const FarmerNavabar = () => {
                             Equipment
                         </Link>
                     </li>
-                    <li><Link to={user.role === "farmer" ? "/farmer-rental" : "/supplier-rental"} className='hover:text-yellow-500 transition'>Rental</Link></li>
+                    <li><Link to={user.role === "farmer" ? "/farmer-bookings" : "/supplier-rental"} className='hover:text-yellow-500 transition'>Rental</Link></li>
                     <li><Link to={user.role === "farmer" ? "/farmer-earnings" : "/supplier-earnings"} className='hover:text-yellow-500 transition'>Earnings</Link></li>
                     <li><Link to={user.role === "farmer" ? "/farmer-help" : "/supplier-help"} className='hover:text-yellow-500 transition'>Help</Link></li>
                 </ul>

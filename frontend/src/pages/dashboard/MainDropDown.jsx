@@ -38,7 +38,7 @@ const MainDropDown = () => {
                         <li>
                             <a
                                 className="block p-3 pl-10 hover:bg-gray-400 rounded"
-                                onClick={() => navigate("/my-rentals")}
+                                onClick={() => navigate("/farmer-bookings")}
                             >
                                <Home className="inline-block mr-2" /> My Rentals
                             </a>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useAuthStore } from "../../store/authstore";
 import { useProductStore } from "../../store/product.store";
 import { useBookingStore } from "../../store/booking.store";
+import { useNavigate } from "react-router-dom";
 
 export default function BookingPage() {
   const { user } = useAuthStore();
@@ -16,7 +17,7 @@ export default function BookingPage() {
     quantity: 1,
     operators: false,
     deliveryAndPickup: false,
-    pickUpLoacation: "",
+    pickUpLocation: "",
     returnLocation: "",
     purpose: "",
     fullName: user?.name || "",
@@ -100,8 +101,8 @@ export default function BookingPage() {
               <input
                 type="text"
                 className="w-full border border-black p-2 rounded"
-                value={form.pickUploacation}
-                onChange={(e) => setForm({ ...form, pickUploacation: e.target.value })}
+                value={form.pickUpLocation}
+                onChange={(e) => setForm({ ...form, pickUpLocation: e.target.value })}
               />
             </div>
 
@@ -136,8 +137,8 @@ export default function BookingPage() {
           <label className="flex items-center gap-2 mb-2">
             <input
               type="checkbox"
-              checked={form.operator}
-              onChange={() => setForm({ ...form, operator: !form.operator })}
+              checked={form.operators}
+              onChange={() => setForm({ ...form, operators: !form.operators })}
             />
             Professional Operator ({productDetails.operatorCharges}/day)
           </label>
@@ -234,6 +235,8 @@ export default function BookingPage() {
         form={form}
         product={productDetails}
         days={days}
+        user={user}
+        addBooking={addBooking}
       />
     </div>
   );
@@ -242,12 +245,13 @@ export default function BookingPage() {
 /* ------------------------------
  SIMPLE BOOKING SUMMARY MODAL
 --------------------------------*/
-function SimpleSummaryModal({ open, onClose, form, product, days }) {
+function SimpleSummaryModal({ open, onClose, form, product, days, user, addBooking }) {
   if (!open) return null;
+  const navigate = useNavigate();
 
   const rentalCost = product.pricing.dailyRate * days * form.quantity;
-  const operatorCost = form.operator ? 800 * days : 0;
-  const deliveryCost = form.delivery ? 500 : 0;
+  const operatorCost = form.operators ? 800 * days : 0;
+  const deliveryCost = form.deliveryAndPickup ? 500 : 0;
   const total = rentalCost + operatorCost + deliveryCost;
 
   return (
@@ -288,14 +292,14 @@ function SimpleSummaryModal({ open, onClose, form, product, days }) {
             onClick={async () => {
               const bookingPayload = {
                 product: product._id,
-                farmer: user._id,
+                farmer: user?._id,
                 supplier: product.supplier,
                 startDate: form.startDate,
                 endDate: form.endDate,
-                pickUpLocation: form.pickUploacation,
+                pickUpLocation: form.pickUpLocation,
                 returnLocation: form.returnLocation,
                 purpose: form.purpose,
-                operators: form.operator,
+                operators: form.operators,
                 deliveryAndPickup: form.deliveryAndPickup,
                 totalPrice: total,
               };
@@ -304,6 +308,7 @@ function SimpleSummaryModal({ open, onClose, form, product, days }) {
 
               if (result) {
                 onClose();
+                navigate("/farmer-dashboard");
                 alert("Booking Successful!");
               }
             }}

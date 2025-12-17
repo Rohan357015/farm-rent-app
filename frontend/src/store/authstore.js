@@ -12,24 +12,24 @@ export const useAuthStore = create((set, get) => ({
   
   checkAuth: async () => {
   set({ checkingAuth: true });
-
   try {
-    // First try supplier
-    const res = await axios.get("/supplier/getSupplierProfile");
-    set({ user: res.data.supplier, checkingAuth: false });
+    // Try to verify as supplier
+    const res = await axios.get("/auth/supplier/verify");
+    set({ user: res.data.user, checkingAuth: false });
     return;
   } catch (e1) {
-    // Supplier failed → try farmer
+    // Try to verify as farmer
     try {
-      const res2 = await axios.get("/farmer/getfarmer");
-      set({ user: res2.data.farmer, checkingAuth: false });
+      const res2 = await axios.get("/auth/farmer/verify");
+      set({ user: res2.data.user, checkingAuth: false });
       return;
     } catch (e2) {
-      // Both failed → logout
+      // Both failed → user is not authenticated
       set({ user: null, checkingAuth: false });
     }
   }
 },
+
 
 
 

@@ -110,3 +110,14 @@ export const getFarmerDashboard = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 }
+export const verifyToken = async (req, res) => {
+  try {
+    // If middleware passed, token is valid and user is attached
+    res.json({ 
+      isValid: true, 
+      user: req.user 
+    });
+  } catch (error) {
+    res.status(401).json({ isValid: false });
+  }
+};

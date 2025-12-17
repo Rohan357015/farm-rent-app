@@ -3,6 +3,7 @@ import { supplierSignup, supplierLogin, supplierLogout ,getSupplierProfile} from
 import { ProtectRoute } from "../middleware/auth.middleware.js";
 import { supplierRoute } from "../middleware/farmer.middleware.js";   
 import { storeRefreshToken ,refreshAccessToken } from "../utils/token.js";
+import { verifyToken } from "../controllers/farmerAuth.controllers.js";
 
 const supplierRouter = express.Router();
 
@@ -12,5 +13,6 @@ supplierRouter.post("/supplier/signup", supplierSignup);
 supplierRouter.post("/supplier/login", supplierLogin);
 supplierRouter.post("/supplier/logout", supplierLogout);
 supplierRouter.get("/supplier/getSupplierProfile", ProtectRoute, supplierRoute, getSupplierProfile);
+supplierRouter.get("/supplier/verify", ProtectRoute, verifyToken);
 
 export default supplierRouter;

@@ -17,12 +17,19 @@ import SupplierEquipment from "./pages/utilityPages/SupplierEquipment.jsx";
 import BookingForm from "./pages/forms/bookingForm.jsx";
 import CartPage from "./pages/cartPage.jsx";
 import FarmerBookings from "./pages/rentalPage.jsx";
+import { useShallow } from "zustand/react/shallow";
 function App() {
-  const { checkAuth, checkingAuth, user } = useAuthStore();
+  const { checkAuth, checkingAuth, user } = useAuthStore(
+    useShallow((state) => ({
+      checkAuth: state.checkAuth,
+      checkingAuth: state.checkingAuth,
+      user: state.user,
+    }))
+  );
 
   React.useEffect(() => {
     checkAuth();
-  }, [checkAuth]);
+  }, []);
 
   if (checkingAuth) {
     return (

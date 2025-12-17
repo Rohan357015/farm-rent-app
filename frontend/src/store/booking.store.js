@@ -1,9 +1,9 @@
 import { create } from "zustand";
 import axios from "../lib/axios.js";
 import { toast } from "react-hot-toast";
-import { get } from "mongoose";
 
-export const useBookingStore = create((set) => ({
+
+export const useBookingStore = create((set,get) => ({
   loading: false,
 
   addBooking: async (productId, bookingData) => {
@@ -38,19 +38,23 @@ export const useBookingStore = create((set) => ({
     }
   },
 
-  cancelBookings:async(bookingId,bookingData)=>{
-    try{
-      set({loading:true});
-      const res = await axios.post(`/bookings/cancel-booking/${bookingId}`,bookingData);
-      toast.success("booking cancelled");
-      set({loading:false});
-      return res.data;
+ cancelBookings: async (bookingId) => {
+  try {
+    set({ loading: true });
 
-    }catch(error){
-      console.error(error.message);
-     toast.error("error in cancelling the booking");
-    }
-  },
+    const res = await axios.post(`/bookings/cancel-booking/${bookingId}`);
+
+    toast.success("Booking cancelled successfully");
+
+    set({ loading: false });
+    return res.data.booking; // ✅ return updated booking
+  } catch (error) {
+    toast.error(error.response?.data?.message || "Error cancelling booking");
+    set({ loading: false });
+    throw error; // ✅ IMPORTANT
+  }
+},
+
 
 
 }));

@@ -36,19 +36,19 @@ export default function FarmerBookings() {
     const [loading, setLoading] = useState(true);
     const handleCancel = async (bookingId) => {
         try {
-            await cancelBookings(bookingId);
+            const updatedBooking = await cancelBookings(bookingId);
 
-            setBookings((prev) =>
-                prev.map((b) =>
-                    b._id === bookingId
-                        ? { ...b, status: "Cancelled" }
-                        : b
+            setBookings(prev =>
+                prev.map(b =>
+                    b._id === updatedBooking._id ? updatedBooking : b
                 )
             );
         } catch (err) {
-            console.error("Cancel failed", err);
+            console.error("Cancel failed");
         }
     };
+
+
 
     // Jab component mount ho, bookings fetch karo
     useEffect(() => {

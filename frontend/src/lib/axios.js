@@ -2,8 +2,24 @@ import axios from "axios";
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
-  withCredentials: true, // cookies bhejne ke liye
+  withCredentials: true,
 });
+
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error, token = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  
+  isRefreshing = false;
+  failedQueue = [];
+}
 
 // Response interceptor
 axiosInstance.interceptors.response.use(
@@ -11,17 +27,28 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Agar 401 aaya aur abhi retry nahi kiya
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Agar 401 aaya aur ye verify endpoint nahi hai
+    if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== '/auth/refresh-token') {
+      
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then(token => {
+          originalRequest.headers['Authorization'] = `Bearer ${token}`;
+          return axiosInstance(originalRequest);
+        });
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
 
       try {
-        // refresh-token hit karo
         await axiosInstance.post("/auth/refresh-token");
-        // same request dubara
+        processQueue(null);
         return axiosInstance(originalRequest);
       } catch (err) {
-        // refresh bhi fail → user ko login karwana padega
+        processQueue(err, null);
+        // Logout karo - user session over
         return Promise.reject(err);
       }
     }

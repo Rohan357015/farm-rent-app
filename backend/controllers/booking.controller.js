@@ -69,16 +69,21 @@ export const getFarmerBookings = async (req, res) => {
 //cancel booking
 export const cancelBooking = async (req, res) => {
   try {
-    const { bookingId } = req.params;
-    
+    const { id } = req.params; // ✅ FIX
+
     const booking = await Booking.findByIdAndUpdate(
-      bookingId,
-      { status: 'Cancelled' },
+      id,
+      { status: "Cancelled" },
       { new: true }
     );
-    
-    res.json({ message: 'Booking cancelled', booking });
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    res.json({ message: "Booking cancelled", booking });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+

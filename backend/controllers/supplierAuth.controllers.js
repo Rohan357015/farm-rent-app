@@ -3,6 +3,7 @@ import Farmer from "../models/farmer.model.js";
 import jwt from "jsonwebtoken";
 import { generateTokens, storeRefreshToken, setCookies } from "../utils/token.js";
 import { redis } from "../lib/redis.js";
+import { uploadSingleImages } from "../utils/uploadToCloudinary.js";
 
 export const supplierSignup = async (req, res) => {
   const { name, email, password, companyName, phone, location } = req.body;
@@ -121,44 +122,44 @@ export const getSupplierProfile = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const supplierId = req.user.id;
+    const supplierId = req.user._id;
+    const { image, ...rest } = req.body;
+    let updateData = { ...rest };
+
+    if (image && image.length > 0) {
+      const uploadedImage = await uploadSingleImages(image, "supplier");
+      if (uploadedImage) {
+        updateData.image = uploadedImage;
+      }
+    }
 
     const updatedUser = await Supplier.findByIdAndUpdate(
       supplierId,
-      req.body,               
+      updateData,
       { new: true, runValidators: true }
     );
 
-    if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    res.status(200).json({
-      message: "User details updated successfully",
+    res.json({
+      message: "Profile updated successfully",
       user: updatedUser,
     });
-
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
   }
 };
 
-
 export const deleteUser = async (req, res) => {
   try {
-    const userId = req.user.id;
-
+    const userId = req.user._id;
     const deletedUser = await Supplier.findByIdAndDelete(userId);
-
     if (!deletedUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({
-      message: "User deleted successfully",
-    });
-
+    res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+  

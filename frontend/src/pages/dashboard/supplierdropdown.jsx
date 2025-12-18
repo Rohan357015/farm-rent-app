@@ -5,8 +5,8 @@ import { useAuthStore } from "../../store/authstore.js";
 
 
 const SupplierDropDown = () => {
-    const [open, setOpen] = useState(false);
-    const [open2, setOpen2] = useState(false);
+    const [open, setOpen] = useState(true);
+    const [open2, setOpen2] = useState(true);
     const supplierLogout = useAuthStore((state) => state.supplierLogout);
     const navigate = useNavigate();
 
@@ -83,7 +83,7 @@ const SupplierDropDown = () => {
                         <li>
                             <a
                                 className="block p-3 pl-10 hover:bg-gray-400 rounded"
-                                onClick={() => navigate("/supplier-profile-settings")}
+                                onClick={() => navigate("/supplier-profile")}
                             >
                               <User className="inline-block mr-2" /> Profile Settings
                             </a>

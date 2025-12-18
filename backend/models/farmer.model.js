@@ -6,14 +6,29 @@ const farmerSchema = new mongoose.Schema(
     name: { type: String, required: [true, "Name is required"] },
     email: { type: String, required: [true, "Email is required"], unique: true, lowercase: true },
     password: { type: String, required: [true, "Password is required"], minlength: 6 },
-    
+    image :{type:String},
+    gender:{
+       type: String,
+    enum: ["Male","Female"]
+    },
+
     phone: { type: String },
     location: { type: String },
-    landSize: { type: Number }, 
+    landSize: { type: Number },
     role: { type: String, default: "farmer" },
-    rentals: { type :Number, default:0},
+    rentals: { type: Number, default: 0 },
     ratings: { type: [Number], default: [] },
-    activerentals: { type :Number, default:0},  
+    activerentals: { type: Number, default: 0 },
+    about: { type: String },
+    Address: {
+      street: { type: String, required: true },
+      city: { type: String, required: true },
+      state: { type: String, required: true },
+      pincode: { type: String, required: true },
+      country: { type: String, default: "India" },
+      alternatePhone: { type: String },
+      landmark: {type:String},
+    }
   },
   { timestamps: true }
 );

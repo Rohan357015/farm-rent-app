@@ -91,7 +91,7 @@ const MainDropDown = () => {
                         <li>
                             <a
                                 className="block p-3 pl-10 hover:bg-gray-400 rounded"
-                                onClick={() => navigate("/profile-settings")}
+                                onClick={() => navigate("/farmer-profile")}
                             >
                               <User className="inline-block mr-2" /> Profile Settings
                             </a>

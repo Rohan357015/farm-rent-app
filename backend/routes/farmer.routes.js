@@ -1,5 +1,5 @@
 import express from "express";
-import { farmerSignup, farmerLogin, farmerLogout,getFarmerDashboard} from "../controllers/farmerAuth.controllers.js";
+import { farmerSignup, farmerLogin, farmerLogout,getFarmerDashboard,updateProfile,deleteUser} from "../controllers/farmerAuth.controllers.js";
 import { ProtectRoute } from "../middleware/auth.middleware.js";
 import { farmerRoute } from "../middleware/farmer.middleware.js";    
 import { storeRefreshToken ,refreshAccessToken } from "../utils/token.js";
@@ -15,6 +15,8 @@ farmerRouter.post("/farmer/login", farmerLogin);
 farmerRouter.post("/farmer/logout", farmerLogout);
 farmerRouter.get("/farmer/getfarmer", ProtectRoute, farmerRoute, getFarmerDashboard);
 farmerRouter.get("/farmer/verify", ProtectRoute, verifyToken);
+farmerRouter.put("/farmer/update",ProtectRoute,updateProfile);
+farmerRouter.delete("/farmer/update",ProtectRoute,deleteUser);
 
 
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useProductStore } from '../../store/product.store.js'
 import { Filter, Search, X, Edit, Trash } from "lucide-react";
+import { useBookingStore } from '../../store/booking.store.js';
 // import { useProductStore } from '../../store/product.store.js';
 
 const categories = [
@@ -16,6 +17,39 @@ const categories = [
 
 function DashboardCentre() {
   const { updateProduct, deleteProduct } = useProductStore();
+  const { getRequest } = useBookingStore();
+  const [requests, setRequests] = useState([]);
+  
+
+  useEffect(() => {
+    const loadRequests = async () => {
+      try {
+        const data = await getRequest();
+        setRequests(data || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+       
+      }
+    };
+    loadRequests();
+  }, []);
+
+  const formatDate = (date) =>
+    new Date(date).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+
+  const calculateDays = (start, end) =>
+    Math.ceil((new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24));
+
+  const latestRequests = [...requests]
+  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+  .slice(0, 3);
+
+
 
   const navigate = useNavigate();
   const { supplierProducts, getSupplierProducts, loading } = useProductStore();
@@ -443,44 +477,86 @@ function DashboardCentre() {
               )}
             </div>
           )}
-          <button onClick={()=>navigate("/supplier-equipments")} className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 mt-5 ">See More</button>
+          <button onClick={() => navigate("/supplier-equipments")} className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 mt-5 ">See More</button>
         </div>
 
 
         {/* RENTAL REQUESTS SECTION */}
+        {/* RENTAL REQUESTS SECTION */}
         <div className="bg-white rounded-xl shadow p-5 w-full">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold">Rental Requests</h2>
-            <button className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100">
+            <button
+              onClick={() => navigate("/supplier-rentals")}
+              className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-100"
+            >
               View All
             </button>
           </div>
 
-          {/* Tabs */}
-          <div className="flex space-x-6 border-b pb-2 mb-4">
-            <button className="text-green-600 font-semibold border-b-2 border-green-600 pb-2">
-              Pending (3)
-            </button>
-            <button className="text-gray-500 hover:text-green-600">Approved (5)</button>
-            <button className="text-gray-500 hover:text-green-600">Completed (12)</button>
-          </div>
+          {/* Tabs (UI only for now) */}
+         
 
-          {/* Request Item */}
-          <div className="bg-gray-50 rounded-xl p-4 flex justify-between items-center shadow">
-            <div className="flex items-center space-x-4">
-              <div className="h-16 w-16 bg-gray-200 rounded-xl"></div>
-              <div>
-                <h3 className="font-semibold">John Deere Tractor</h3>
-                <p className="text-gray-500 text-sm">June 15–18, 2023 • $360</p>
-              </div>
-            </div>
+          {/* Requests List */}
+          {latestRequests && latestRequests.length > 0 ? (
+            <div className="space-y-3 max-h-[360px] overflow-y-auto pr-2">
+              {latestRequests.map((r) => (
+                <div
+                  key={r._id}
+                  className="bg-gray-50 rounded-xl p-4 grid grid-cols-[1fr_220px_140px_180px] items-center gap-4 shadow-sm"
+                >
+                  {/* Farmer + Product */}
+                  <div>
+                    <h3 className="font-semibold text-gray-800">
+                      {r.product?.equipmentName}
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      {r.farmer?.name} • {r.product?.category}
+                    </p>
+                  </div>
 
-            <div className="space-x-3">
-              <button className="bg-green-600 text-white px-4 py-2 rounded-lg">Approve</button>
-              <button className="bg-red-600 text-white px-4 py-2 rounded-lg">Decline</button>
+                  {/* Period */}
+                  <div className="text-sm text-gray-600 text-center">
+                    <p>
+                      {formatDate(r.startDate)} – {formatDate(r.endDate)}
+                    </p>
+                    <p className="text-xs">
+                      {calculateDays(r.startDate, r.endDate)} days
+                    </p>
+                  </div>
+
+                  {/* Price */}
+                  <div className="font-semibold text-green-700 text-center">
+                    ₹{r.totalPrice}
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-2 justify-end">
+                    {r.status === "Pending" ? (
+                      <>
+                        <button className="bg-green-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-green-700">
+                          Approve
+                        </button>
+                        <button className="bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm hover:bg-red-700">
+                          Decline
+                        </button>
+                      </>
+                    ) : (
+                      <button className="px-4 py-1.5 border rounded-lg text-sm hover:bg-gray-100">
+                        View
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          ) : (
+            <div className="text-center py-10 text-gray-500">
+              No rental requests available
+            </div>
+          )}
         </div>
+
 
       </div>
 

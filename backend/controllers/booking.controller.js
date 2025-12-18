@@ -1,5 +1,6 @@
 import Booking from "../models/booking.model.js";
-import {Product} from "../models/product.model.js";
+import { Product } from "../models/product.model.js";
+import Supplier from "../models/supplier.model.js";
 
 
 
@@ -53,8 +54,8 @@ export const addBooking = async (req, res) => {
 export const getFarmerBookings = async (req, res) => {
   try {
     const farmerId = req.user.id;
-    if(!farmerId){
-      return res.status(400).json({message: "Invalid Farmer ID"});
+    if (!farmerId) {
+      return res.status(400).json({ message: "Invalid Farmer ID" });
     }
     const bookings = await Booking.find({ farmer: farmerId })
       .populate("product")
@@ -87,3 +88,86 @@ export const cancelBooking = async (req, res) => {
   }
 };
 
+export const getSupplierRequest = async (req, res) => {
+  try {
+    const SupplierId = req.user.id;
+    const bookings = await Booking.find({ supplier: SupplierId, status: { $ne: "Cancelled" } }).populate("product").populate("farmer");
+    res.json({ bookings });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const declineRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const supplierId = req.user.id;
+
+    const booking = await Booking.findOneAndUpdate(
+      { _id: id, supplier: supplierId },   // 🔐 ownership check
+      { status: "Rejected" },
+      { new: true }
+    );
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    res.status(200).json({
+      message: "Booking rejected successfully",
+      booking
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const approveRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const supplierId = req.user.id;
+
+    const booking = await Booking.findOneAndUpdate(
+      { _id: id, supplier: supplierId },   // 🔐 ownership check
+      { status: "Approved" },
+      { new: true }
+    );
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    res.status(200).json({
+      message: "Booking approved successfully",
+      booking
+    });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+export const CompleteBookings = async (req, res) => {
+  try {
+
+    const { id } = req.params;
+    const FarmerId = req.user.id;
+    const booking = await Booking.findByIdAndUpdate(
+      id,
+      { status: "Completed" },
+      { new: true }
+    );
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+    res.status(200).json({
+      message: "Booking Completed successfully",
+      booking
+    });
+
+  } catch (error) {
+    console.error("complete booking error:", error.message);
+  }
+};

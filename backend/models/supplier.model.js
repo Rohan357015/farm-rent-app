@@ -9,6 +9,7 @@ const supplierSchema = new mongoose.Schema(
     companyName: { type: String },
     phone: { type: String },
     location: { type: String },
+    about :{type:String},
     equipmentList: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -16,6 +17,16 @@ const supplierSchema = new mongoose.Schema(
       },
     ],
     role: { type: String, default: "supplier" },
+     Address: {
+      street: { type: String, required: true },
+      city: { type: String, required: true },
+      state: { type: String, required: true },
+      pincode: { type: String, required: true },
+      country: { type: String, default: "India" },
+      alternatePhone: { type: String, required: true },
+      landmark: {type:String},
+    },
+    image:{type:String},
   },
   
   { timestamps: true }

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import FarmerNavabar from "./dashboard/navBar2";
 import { useBookingStore } from "../store/booking.store";
 
+
 const statusStyles = {
     Pending: {
         badge: "bg-yellow-100 text-yellow-800",
@@ -31,7 +32,7 @@ const statusStyles = {
 
 
 export default function FarmerBookings() {
-    const { getFarmerBookings, cancelBookings } = useBookingStore();
+    const { getFarmerBookings, cancelBookings,CompleteBookings } = useBookingStore();
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const handleCancel = async (bookingId) => {
@@ -95,10 +96,18 @@ export default function FarmerBookings() {
         );
     }
 
+    async function showWarning(bookingId){
+    if(window.confirm("Are you sure you want to complete this booking?")) {
+        CompleteBookings(bookingId);
+         const updatedBookings = await getFarmerBookings();
+    setBookings(updatedBookings);
+    }
+}
+
     return (
         <>
             <FarmerNavabar />
-            <div className="min-h-screen bg-gray-50 p-8">
+            <div className="min-h-screen bg-yellow-50 p-8">
                 {/* Header */}
                 <div className="mb-8 flex items-end justify-between">
                     <div>
@@ -204,6 +213,13 @@ export default function FarmerBookings() {
                                                 Booking Cancelled
                                             </span>
                                         )}
+                                         {booking.status === "Approved" && (
+                                            <button className="rounded-md border border-gray-600 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 font-medium"
+                                            onClick={() => showWarning(booking._id)}
+                                            >
+                                                Complete
+                                            </button>
+                                        )}
 
                                     </div>
                                 </div>
@@ -215,3 +231,5 @@ export default function FarmerBookings() {
         </>
     );
 }
+
+

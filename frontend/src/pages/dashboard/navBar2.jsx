@@ -26,7 +26,7 @@ const FarmerNavabar = () => {
                             Equipment
                         </Link>
                     </li>
-                    <li><Link to={user.role === "farmer" ? "/farmer-bookings" : "/supplier-rental"} className='hover:text-yellow-500 transition'>Rental</Link></li>
+                    <li><Link to={user.role === "farmer" ? "/farmer-bookings" : "/supplier-rentals"} className='hover:text-yellow-500 transition'>Rental</Link></li>
                     <li><Link to={user.role === "farmer" ? "/farmer-earnings" : "/supplier-earnings"} className='hover:text-yellow-500 transition'>Earnings</Link></li>
                     <li><Link to={user.role === "farmer" ? "/farmer-help" : "/supplier-help"} className='hover:text-yellow-500 transition'>Help</Link></li>
                 </ul>

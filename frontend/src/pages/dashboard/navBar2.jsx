@@ -20,7 +20,7 @@ const FarmerNavabar = () => {
                     <li><Link to={user.role === "farmer" ? "/farmer-dashboard" : "/supplier-dashboard"} className='hover:text-yellow-500 transition'>Dashboard</Link></li>
                     <li>
                         <Link
-                            to={user.role === "farmer" ? "/farmer-equipment" : "/supplier-equipments"}
+                            to={user.role === "farmer" ? "" : "/supplier-equipments"}
                             className='hover:text-yellow-500 transition'
                         >
                             Equipment

@@ -51,11 +51,11 @@ const HOME = () => {
         </div>
         <div className='w-[50%] bg-[#F9EFE6] flex flex-col gap-6 p-16'>
           <h1 className='text-blue-950 text-[46px]'>Streamlined <br /> Bookings....</h1>
-          <p>
+          <p className='text-black'>
             Our intuitive booking system allows you to reserve the equipment you need with just a few clicks.
             Enjoy real-time availability updates and secure payment options, ensuring a hassle-free rental experience.
           </p>
-          <p>
+          <p className='text-black' >
             Experience the future of farm equipment rentals with AgroRent. Sign up today and take the first step
             towards effortless farming!
           </p>
@@ -125,7 +125,7 @@ const HOME = () => {
         <div className="w-full py-16 bg-[#FAF0E6]">
           <div className='w-[40%] pl-35'>
           <h2 className='text-blue-950 text-2xl font-bold'>Testimonals</h2>
-          <p>Hear from our satisfied customers about their experience with AgroRent. Our unwavering commitment to quality and customer satisfaction has earned us a reputation as the go-to provider for farm equipment rentals</p>
+          <p className='text-black'>Hear from our satisfied customers about their experience with AgroRent. Our unwavering commitment to quality and customer satisfaction has earned us a reputation as the go-to provider for farm equipment rentals</p>
           </div>
         </div>
         <div className='w-[50%] pl-30 mt-3.5'>
@@ -142,7 +142,7 @@ const HOME = () => {
        
         <div className='w-[70%] bg-[#F9EFE6] flex flex-col gap-6 p-16 '>
           <h1 className='text-blue-950 text-[46px] font-mono'>Contact Us</h1>
-          <p>
+          <p  className='text-black'>
             Have a question or need assistance with your rental? Our dedicated customer support team is here to help. Get in touch with us today and let us guide you through the process.
           </p>
          

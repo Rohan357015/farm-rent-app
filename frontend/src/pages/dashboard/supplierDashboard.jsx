@@ -1,69 +1,98 @@
-import React from 'react';
-import FarmerNavabar from './navBar2.jsx';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Tractor, Star, Activity, Search } from "lucide-react";
-import AutoWeather from '../../components/weatherApp.jsx';
-import SupplierDropDown from './supplierdropdown.jsx';
-import { useAuthStore } from '../../store/authstore.js';
-import { useEffect } from 'react';
-import DashboardCentre from './dashboardcentre.jsx';
-import { useBookingStore } from '../../store/booking.store.js';
-
-// import { useNavigation } from 'react-router-dom';
-
-
+import React, { useEffect, useState } from "react";
+import FarmerNavabar from "./navBar2.jsx";
+import AutoWeather from "../../components/weatherApp.jsx";
+import SupplierDropDown from "./supplierdropdown.jsx";
+import DashboardCentre from "./dashboardcentre.jsx";
+import { useAuthStore } from "../../store/authstore.js";
+import { Menu, X } from "lucide-react";
 
 const SupplierDashboard = () => {
-    const { supplierStats, getSupplierDashboard,user } = useAuthStore();
-    
-    useEffect(() => {
-        getSupplierDashboard();
-    }, []);
-    
-    // const navigate = useNavigation();
-    return (
-        <div className="min-h-screen bg-[#12152D] text-white ">
-            <FarmerNavabar />
-            <div className='flex justify-between items-start'>
-                <div className='profile  w-[20%] h-screen overflow-y-auto flex flex-col gap-8 bg-white text-black'
-                    style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-                    <section className="profile-info flex items-center flex-col">
-                        <div className="rounded-full w-24 h-24  mt-10 flex flex-col items-center justify-center">
-                             <img
-                    src={user?.image}
-                    className="w-24 h-24 rounded-full border border-black mx-auto mb-4 object-cover"
-                />
+  const { supplierStats, getSupplierDashboard, user } = useAuthStore();
+  const [open, setOpen] = useState(false);
 
-                        </div>
-                        <h3 className='font-semibold text-[1rem] '>{supplierStats?.name}</h3>
-                        <p className="text-gray-400">{supplierStats?.location}</p>
-                        <p className="text-gray-400">{supplierStats?.companyName}</p>
-                    </section>
-                    <section className='flex items-center justify-around text-lg font-serif'>
-                        <div className='flex flex-col items-center'><h2 className='text-green-900'> {Request.length}</h2><p>Rentals</p></div>
-                        <div className='flex flex-col items-center'><h2 className='text-green-900'> 4.8</h2><p>Ratings</p></div>
-                        <div className='flex flex-col items-center'><h2 className='text-green-900'>3</h2><p>Active</p></div>
-                    </section>
-                    <section className="weather">
-                        <AutoWeather />
-                    </section>
-                    <hr className='text-gray-300' />
-                    <section className=' w-full  dropmenu '>
-                        <SupplierDropDown />
-                    </section>
-                </div>
+  useEffect(() => {
+    getSupplierDashboard();
+  }, []);
 
-                <section className="info bg-yellow-50 text-black w-[80%] h-screen overflow-y-auto flex flex-col justify-start  items-center"
-                    style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-                    {/* add equipments button */}
-                    <h1 className='text-black font-bold text-2xl'>Owner Dashboard</h1>
-                    <DashboardCentre />
+  return (
+    <div className="min-h-screen bg-[#12152D] text-white relative">
+      {/* NAVBAR WITH MENU */}
+      <FarmerNavabar onMenuClick={() => setOpen(true)} />
 
-                </section>
+      {/* BACKDROP */}
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          className="fixed inset-0 bg-black/40 z-40"
+        />
+      )}
+
+      {/* SIDEBAR (OVERLAY) */}
+      {open && (
+        <div
+          className="fixed top-0 left-0 h-screen w-[18%] bg-white text-black
+                     flex flex-col gap-8 overflow-y-auto z-50 shadow-xl"
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        >
+            {/* CLOSE BUTTON */}
+                      <X
+                        onClick={() => setOpen(false)}
+                        className="absolute top-4 right-4 w-10 h-10 p-2 cursor-pointer
+                                   rounded-full hover:bg-gray-200 transition"
+                      />
+          {/* PROFILE */}
+          <section className="flex flex-col items-center mt-12">
+            <img
+              src={user?.image}
+              alt=""
+              className="w-24 h-24 rounded-full border object-cover"
+            />
+            <h3 className="mt-2 font-semibold">{supplierStats?.name}</h3>
+            <p className="text-gray-400 text-sm">{supplierStats?.location}</p>
+            <p className="text-gray-400 text-sm">{supplierStats?.companyName}</p>
+          </section>
+
+          {/* STATS */}
+          <section className="flex justify-around text-center font-serif">
+            <div>
+              <h2 className="text-green-700">{supplierStats?.totalRentals || 0}</h2>
+              <p>Rentals</p>
             </div>
+            <div>
+              <h2 className="text-green-700">4.8</h2>
+              <p>Ratings</p>
+            </div>
+            <div>
+              <h2 className="text-green-700">{supplierStats?.active || 0}</h2>
+              <p>Active</p>
+            </div>
+          </section>
+
+          {/* WEATHER */}
+          <section className="px-3">
+            <AutoWeather />
+          </section>
+
+          <hr className="border-gray-300" />
+
+          {/* DROPDOWN */}
+          <section className="px-3">
+            <SupplierDropDown />
+          </section>
         </div>
-    );
-}
+      )}
+
+      {/* MAIN CONTENT */}
+      <section
+        className="bg-yellow-50 text-black min-h-screen w-full
+                   overflow-y-auto flex flex-col items-center"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
+        <h1 className="mt-6 font-bold text-2xl">Owner Dashboard</h1>
+        <DashboardCentre />
+      </section>
+    </div>
+  );
+};
 
 export default SupplierDashboard;

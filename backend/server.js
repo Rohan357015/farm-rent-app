@@ -5,6 +5,7 @@ import farmerRoutes from './routes/farmer.routes.js';
 import supplierRoutes from './routes/supplier.routes.js';
 import productRouter from './routes/product.routes.js';
 import cors from 'cors';
+import path from 'path';
 import cookieParser from 'cookie-parser';
 import bookRouter from './routes/book.routes.js';
 import CartRouter from './routes/cart.route.js';
@@ -15,6 +16,7 @@ import authTokenRoutes from "./routes/auth.routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const __dirname = path.resolve();
 
 
 app.use(cors({
@@ -33,6 +35,15 @@ app.use("/api/products", productRouter);
 app.use("/api/bookings", bookRouter);
 app.use("/api/cart", CartRouter);
 app.use("/api/auth", authTokenRoutes);
+
+if (process.env.NODE_ENV === "production") {
+	app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+	app.get("*", (req, res) => {
+		res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+	});
+}
+
 
 app.listen(PORT, () => {
     connectDB();

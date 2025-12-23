@@ -5,14 +5,21 @@ import { faBell } from '@fortawesome/free-solid-svg-icons';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import { useAuthStore } from '../../store/authstore';
 import { useNavigate } from 'react-router-dom';
+import { Menu } from "lucide-react";
 
 
-const FarmerNavabar = () => {
-    const navigate=useNavigate();
-    const {user}=useAuthStore();
+const FarmerNavabar = ({ onMenuClick }) => {
+    const navigate = useNavigate();
+    const { user } = useAuthStore();
     return (
         <nav className='w-full border border-gray-300 bg-white text-black h-[70px] flex justify-between items-center px-8 shadow-2xl'>
-            <div className='flex items-center gap-2 text-3xl font-bold'>
+            <div>
+                <Menu
+                    onClick={onMenuClick}
+                    className="text-black cursor-pointer "
+                />
+            </div>
+            <div className='flex items-center gap-2 relative right-[15%] text-3xl font-bold'>
                 <Link to="/farmer-dashboard">🌽 AgroRent</Link>
             </div>
             <div>

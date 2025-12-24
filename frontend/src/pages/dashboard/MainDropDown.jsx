@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authstore.js";
 
 const MainDropDown = () => {
-    const [open, setOpen] = useState(false);
-    const [open2, setOpen2] = useState(false);
+    const [open, setOpen] = useState(true);
+    const [open2, setOpen2] = useState(true);
     const farmerLogout = useAuthStore((state) => state.farmerLogout);
     const navigate = useNavigate();
 

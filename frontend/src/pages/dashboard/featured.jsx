@@ -272,7 +272,7 @@ export default function EquipmentBrowser() {
             <div
               key={item._id}
               onClick={() => navigate(`/equipment/${item._id}`)}
-              className="bg-white rounded-xl border hover:shadow-md transition"
+              className="bg-white rounded-xl shadow-2xl hover:shadow-md transition"
             >
               {/* Image */}
               <div className="h-40 w-full bg-green-100 rounded-t-xl overflow-hidden">

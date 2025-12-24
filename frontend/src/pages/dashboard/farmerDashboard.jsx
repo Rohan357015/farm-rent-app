@@ -56,8 +56,13 @@ const FarmerDashboard = () => {
       {/* SIDEBAR (OVERLAY) */}
       {open && (
         <div
-          className="fixed top-0 left-0 h-screen w-[15%] bg-white text-black
-                     flex flex-col gap-8 overflow-y-auto z-50 shadow-xl"
+          className="
+      fixed top-0 left-0 h-screen
+      w-[55%] sm:w-[55%] md:w-[40%] lg:w-[20%] xl:w-[15%]
+      bg-white text-black
+      flex flex-col gap-8 overflow-y-auto
+      z-50 shadow-xl
+    "
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {/* CLOSE BUTTON */}

@@ -40,11 +40,14 @@ app.use("/api/cart", CartRouter);
 app.use("/api/auth", authTokenRoutes);
 
 // ✅ FIX 2: Improved production static files serving
+
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "../frontend/dist")));
+  app.use(express.static(path.join(__dirname, "frontend", "dist")));
 
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+    res.sendFile(
+      path.join(__dirname, "frontend", "dist", "index.html")
+    );
   });
 }
 

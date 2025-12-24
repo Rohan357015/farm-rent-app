@@ -15,14 +15,14 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-// const __dirname = path.resolve();
+const __dirname = path.resolve();
 
 // ✅ FIX 1: Dynamic CORS configuration for Render deployment
 
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );
@@ -40,17 +40,17 @@ app.use("/api/cart", CartRouter);
 app.use("/api/auth", authTokenRoutes);
 
 // ✅ FIX 2: Improved production static files serving
-// if (process.env.NODE_ENV === "production") {
-//   app.use(express.static(path.join(__dirname, "../frontend/dist")));
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-//   app.get("*", (req, res) => {
-//     res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
-//   });
-// }
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
+  });
+}
 
 // Health check endpoint for Render
 app.get("/health", (req, res) => {
-  res.json({ status: "Server is running" ,env: process.env.NODE_ENV  });
+  res.json({ status: "Server is running" });
 });
 
 app.listen(PORT, () => {

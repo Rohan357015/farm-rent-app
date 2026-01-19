@@ -301,12 +301,8 @@ export default function EquipmentBrowser() {
                       </p>
                     )}
                   </div>
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    item.availability?.available 
-                      ? 'text-green-700 bg-green-100' 
-                      : 'text-red-700 bg-red-100'
-                  }`}>
-                    {item.availability?.available ? 'Available' : 'Unavailable'}
+                  <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">
+                    {item?.location?.city || "Unknown Location"}
                   </span>
                 </div>
 

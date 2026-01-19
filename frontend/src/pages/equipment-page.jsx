@@ -6,9 +6,11 @@ import { useAuthStore } from "../store/authstore.js";
 import { useNavigate } from "react-router-dom";
 import { useCartStore } from "../store/useCartStore.js"
 import { useBookingStore } from "../store/booking.store.js";
+import FarmerNavabar from "./dashboard/navBar2.jsx";
 
 export default function EquipmentDetails() {
   const { addBooking } = useBookingStore();
+  const [open, setOpen] = useState(false);
   const { addToCart } = useCartStore();
   const navigate = useNavigate();
   const { id } = useParams();
@@ -33,7 +35,10 @@ export default function EquipmentDetails() {
     : ["/placeholder1.jpg", "/placeholder2.jpg"];
 
   return (
+    <>
+     <FarmerNavabar   onMenuClick={() => setOpen(true)}/>
     <div className="w-full bg-yellow-50 mx-auto p-6">
+     
 
       {/* ---------------- IMAGE SLIDER ---------------- */}
       <div className="relative w-full h-[380px] bg-gray-200 rounded-xl overflow-hidden">
@@ -42,13 +47,13 @@ export default function EquipmentDetails() {
         {/* Slider arrows */}
         <button
           onClick={() => setActiveImage(activeImage > 0 ? activeImage - 1 : images.length - 1)}
-          className="absolute left-3 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 shadow"
+          className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full  bg-gray-400 text-black p-2 shadow"
         >
           ‹
         </button>
         <button
           onClick={() => setActiveImage((activeImage + 1) % images.length)}
-          className="absolute right-3 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 shadow"
+          className="absolute right-3 top-1/2 -translate-y-1/2  bg-gray-400 text-black rounded-full p-2 shadow"
         >
           ›
         </button>
@@ -241,6 +246,7 @@ export default function EquipmentDetails() {
       }
 
     </div>
+    </>
   );
 }
 

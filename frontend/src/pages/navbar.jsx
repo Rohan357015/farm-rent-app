@@ -4,11 +4,11 @@ import { faStar } from '@fortawesome/free-solid-svg-icons';
 import { Link, useNavigate } from 'react-router-dom';
 
 
-const Navbar = () => {
+const Navbar = ({ className = "" , onNavigate }) => {
   const navigate = useNavigate();
 
   return (
-    <nav className='w-full h-[70px] bg-[#272c4e] flex justify-between items-center px-8'>
+    <nav className={`w-full h-[70px] bg-[#181b2f] flex justify-between items-center px-8 ${className}`}>
       <div className='flex items-center gap-2'>
         <FontAwesomeIcon icon={faStar} className='text-yellow-400 text-[24px]' />
         <p className='text-white text-[24px] font-semibold'>AgroRent</p>
@@ -16,24 +16,50 @@ const Navbar = () => {
 
       <ul className='flex items-center gap-8 text-white text-[18px]'>
         <li>
-          <Link to="/" className='hover:text-yellow-400 cursor-pointer'>
-            Home
-          </Link>
+            <button
+            onClick={() => {
+              onNavigate("hero");
+              onClose();
+            }}
+            className="text-left hover:text-yellow-400"
+          >
+           Home
+          </button>
         </li>
         <li>
-          <Link to="/about" className='hover:text-yellow-400 cursor-pointer'>
+           <button
+            onClick={() => {
+              onNavigate("about");
+              onClose();
+            }}
+            className="text-left hover:text-yellow-400"
+          >
             About
-          </Link>
+          </button>
+
         </li>
         <li>
-          <Link to="/rentals" className='hover:text-yellow-400 cursor-pointer'>
+           <button
+            onClick={() => {
+              onNavigate("rental");
+              onClose();
+            }}
+            className="text-left hover:text-yellow-400"
+          >
             Rentals
-          </Link>
+          </button>
+
         </li>
         <li>
-          <Link to="/contact" className='hover:text-yellow-400 cursor-pointer'>
-            Contact
-          </Link>
+           <button
+            onClick={() => {
+              onNavigate("contact");
+              onClose();
+            }}
+            className="text-left hover:text-yellow-400"
+          >Contact
+          </button>
+
         </li>
         <li>
           <Link

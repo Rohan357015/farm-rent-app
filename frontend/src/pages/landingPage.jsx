@@ -1,206 +1,244 @@
-import React from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faStar, faTractor, faWheatAwn, faClock, faHandshake } from '@fortawesome/free-solid-svg-icons'
-import tractor from '../assets/tractor1.png'
-import tractor2 from '../assets/tractor2.png'
-import tractor3 from '../assets/tractor3.png'
-import tractor4 from '../assets/tractor4.png'
-import logo from '../assets/LogoColumn.png'
-import { useNavigate } from 'react-router-dom'
-import Navbar from './navbar.jsx'
+import React from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faWheatAwn,
+  faClock,
+  faHandshake,
+} from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
+import tractor from "../assets/tractor1.png";
+import tractor2 from "../assets/tractor2.png";
+import tractor3 from "../assets/tractor3.png";
+import tractor4 from "../assets/tractor4.png";
+import logo from "../assets/LogoColumn.png";
+import Navbar from "./navbar.jsx";
+import HamburgerMenu from "./hamburgermenu.jsx";
+import { Hamburger, Menu, Star } from "lucide-react";
 
 const HOME = () => {
-  const position={
-    position: 'relative',
-    right : '-70%',
-    top : '-30rem',
-  }
   const navigate = useNavigate();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const scrollToSection = (id) => {
+  const section = document.getElementById(id);
+  section?.scrollIntoView({ behavior: "smooth" });
+};
+
+
   return (
-    <div className='bg-[#12152D]'>
-      <Navbar />
-      {/* Hero Section */}
-      <section className='h-screen w-full bg-[#12152D] flex justify-around items-center px-16'>
-        <div className='w-[40%]'>
-          <h1 className='text-white text-[46px] font-bold'>
-            Explore <br /> our Farm <br /> Equipments ....
+    <div className="bg-[#12152D] overflow-x-hidden">
+      {/* ================= MOBILE HEADER ================= */}
+      <div className="flex items-center justify-between px-6 py-4 lg:hidden">
+        <h3 className="flex gap-2 font-bold text-white">
+          <Star className="text-yellow-500" />
+          AgroRent
+        </h3>
+
+        <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          <Menu className="text-white" />
+        </button>
+      </div>
+
+      {/* ================= DESKTOP NAVBAR ================= */}
+      <Navbar className="hidden lg:flex" 
+      onNavigate={scrollToSection}
+      />
+
+      {/* ================= MOBILE MENU ================= */}
+      {isMenuOpen && (
+        <HamburgerMenu onClose={() => setIsMenuOpen(false)} onNavigate={scrollToSection} />
+      )}
+
+
+      {/* ================= HERO ================= */}
+      <section id="hero" className="min-h-screen flex flex-col md:flex-row items-center justify-center gap-10 px-6 md:px-12">
+        <div className="w-full md:w-1/2 text-center md:text-left">
+          <h1 className="text-white text-4xl md:text-5xl font-bold">
+            Explore <br /> our Farm <br /> Equipments
           </h1>
-          <p className='text-white text-[18px] mt-2'>
-            Welcome to AgroRent, your premier destination <br /> for reliable and affordable farm equipment rentals
+          <p className="text-white mt-4">
+            Welcome to AgroRent, your premier destination for reliable and
+            affordable farm equipment rentals.
           </p>
-          <div className='mt-6 flex gap-4'>
-            <button onClick={()=>navigate('/farmer-register')} className='bg-yellow-400 text-blue-950 font-semibold px-4 py-2 rounded-lg hover:bg-transparent border hover:text-white hover:border-yellow-400 transition'>
+
+          <div className="mt-6 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+            <button
+              onClick={() => navigate("/farmer-register")}
+              className="bg-yellow-400 text-blue-950 font-semibold px-6 py-2 rounded-lg"
+            >
               Rent Now
             </button>
-            <button onClick={()=>navigate('/supplier-register')} className='bg-transparent text-white border border-yellow-400 font-semibold px-4 py-2 rounded-lg hover:bg-yellow-500 transition'>
+            <button
+              onClick={() => navigate("/supplier-register")}
+              className="border border-yellow-400 text-white px-6 py-2 rounded-lg"
+            >
               Join as Supplier
             </button>
           </div>
         </div>
 
-        <div>
-          <img src={tractor} alt="Tractor" height={700} width={600} />
-        </div>
+        <img
+          src={tractor}
+          alt="tractor"
+          className="w-full max-w-sm md:max-w-md lg:max-w-lg"
+        />
       </section>
 
-      {/* Streamlined Booking Section */}
-      <section className='w-full h-full bg-[#12152D] flex items-center'>
-        <div className='w-[50%]'>
-          <img src={tractor2} alt="Tractor2" height={900} width={1200} className='pl-[15%]' />
-        </div>
-        <div className='w-[50%] bg-[#F9EFE6] flex flex-col gap-6 p-16'>
-          <h1 className='text-blue-950 text-[46px]'>Streamlined <br /> Bookings....</h1>
-          <p className='text-black'>
-            Our intuitive booking system allows you to reserve the equipment you need with just a few clicks.
-            Enjoy real-time availability updates and secure payment options, ensuring a hassle-free rental experience.
-          </p>
-          <p className='text-black' >
-            Experience the future of farm equipment rentals with AgroRent. Sign up today and take the first step
-            towards effortless farming!
-          </p>
+      {/* ================= STREAMLINED BOOKING ================= */}
+      <section id="about" className="flex flex-col md:flex-row items-center">
+        <img
+          src={tractor2}
+          alt="tractor"
+          className="w-full md:w-1/2 lg:w-[35%]"
+        />
 
-          <button className='bg-[#12153D] text-white w-fit px-6 py-2 rounded-md hover:bg-yellow-500 transition'>
+        <div className="w-full md:w-1/2 bg-[#F9EFE6] p-8 md:p-16 flex flex-col lg:w-full gap-6">
+          <h2 className="text-blue-950 text-4xl font-bold">
+            Streamlined <br /> Bookings
+          </h2>
+          <p className="text-black">
+            Our intuitive booking system allows you to reserve equipment with
+            real-time availability and secure payments.
+          </p>
+          <button className="bg-[#12152D] text-white px-6 py-2 w-fit rounded-md">
             Explore Rentals
           </button>
         </div>
       </section>
 
-      {/* Flexible Rental Options Section */}
-      <section className='w-full bg-[#12152D] flex flex-col items-center mt-[10%] px-8 py-16'>
-        <h1 className='text-white font-mono text-5xl text-center mb-6'>Flexible Rental Options</h1>
-        <p className='text-white text-center mb-10 max-w-3xl'>
-          At AgroRent, we understand the unique needs of farmers. That's why we offer a diverse selection of
-          high-performance farm equipment for rent, tailored to your specific requirements.
+      {/* ================= FLEXIBLE RENTALS ================= */}
+      <section className="px-6 py-16 text-center">
+        <h2 className="text-white text-4xl font-bold mb-4">
+          Flexible Rental Options
+        </h2>
+        <p className="text-gray-300 mb-10">
+          We offer high-performance equipment tailored to your needs.
         </p>
 
-        {/* Feature Cards */}
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-10 w-[80%]'>
-          {/* Card 1 */}
-          <div className='bg-[#1A1E3F] rounded-2xl p-6 text-white text-center hover:scale-105 transition'>
-            <FontAwesomeIcon icon={faWheatAwn} className='text-yellow-400 text-[36px] mb-4' />
-            <h3 className='text-2xl font-semibold mb-2'>Real-Time Booking</h3>
-            <p className='text-gray-300'>
-              Never worry about equipment availability again. Our platform provides real-time updates on rental inventory.
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="bg-[#1A1E3F] p-6 rounded-xl text-white">
+            <FontAwesomeIcon icon={faWheatAwn} className="text-yellow-400 text-3xl mb-4" />
+            <h3 className="text-xl font-semibold">Real-Time Booking</h3>
+            <p className="text-gray-300 mt-2">
+              Live inventory updates ensure availability.
             </p>
           </div>
 
-          {/* Card 2 */}
-          <div className='bg-[#1A1E3F] rounded-2xl p-6 text-white text-center hover:scale-105 transition'>
-            <FontAwesomeIcon icon={faClock} className='text-yellow-400 text-[36px] mb-4' />
-            <h3 className='text-2xl font-semibold mb-2'>Flexible Rentals</h3>
-            <p className='text-gray-300'>
-              Rent by the day, week, or month — we adapt to your farming schedule and workload.
+          <div className="bg-[#1A1E3F] p-6 rounded-xl text-white">
+            <FontAwesomeIcon icon={faClock} className="text-yellow-400 text-3xl mb-4" />
+            <h3 className="text-xl font-semibold">Flexible Rentals</h3>
+            <p className="text-gray-300 mt-2">
+              Rent by day, week, or month.
             </p>
           </div>
 
-          {/* Card 3 */}
-          <div className='bg-[#1A1E3F] rounded-2xl p-6 text-white text-center hover:scale-105 transition'>
-            <FontAwesomeIcon icon={faHandshake} className='text-yellow-400 text-[36px] mb-4' />
-            <h3 className='text-2xl font-semibold mb-2'>Trusted Suppliers</h3>
-            <p className='text-gray-300'>
-              Partner with verified suppliers ensuring reliable, top-quality equipment every time.
+          <div className="bg-[#1A1E3F] p-6 rounded-xl text-white md:col-span-2">
+            <FontAwesomeIcon icon={faHandshake} className="text-yellow-400 text-3xl mb-4" />
+            <h3 className="text-xl font-semibold">Trusted Suppliers</h3>
+            <p className="text-gray-300 mt-2">
+              Verified suppliers for quality assurance.
             </p>
           </div>
         </div>
       </section>
 
-      <section className='flex gap-20 item-center gap-8 py-16 px-8 mt-[10%] ml-[10%]'>
-        <div className=''>
-          <img src={tractor3} alt="Description of tractor3" height={300} width={300} />
-        </div>
-        <div className='ml-[10%] mt[10%] w-[50%] flex flex-col gap-8 pt-[10%]'>
-          <h3 className='text-white text-[26px] font-mono'>Renting Made Easy</h3>
-          <p className='text-white'>At AgroRent, we believe that renting farm equipment should be a straightforward and stress-free process. Our user-friendly platform and dedicated customer support team are here to guide you through every step, ensuring a seamless rental experience</p>
-          <div className='flex gap-10'>
-          <button  onClick={()=>navigate('/farmer-register ')} className='bg-yellow-400 border-radius:1rem text-blue-950 font-semibold px-4 py-2 rounded-lg hover:bg-transparent border hover:text-white hover:border-yellow-400 transition'>
-              Rent Now
-            </button>
-            
-            </div>
-        </div>
-      </section>
-      <section className='mt-20'>
-        <div>
-        <div className="w-full py-16 bg-[#FAF0E6]">
-          <div className='w-[40%] pl-35'>
-          <h2 className='text-blue-950 text-2xl font-bold'>Testimonals</h2>
-          <p className='text-black'>Hear from our satisfied customers about their experience with AgroRent. Our unwavering commitment to quality and customer satisfaction has earned us a reputation as the go-to provider for farm equipment rentals</p>
-          </div>
-        </div>
-        <div className='w-[50%] pl-30 mt-3.5'>
-          <p className='text-gray-400'>"AgroRent has been a game-changer for our farm. The wide selection of high-quality equipment and reliable booking system have made our operations more efficient and cost-effective. We highly recommend their services to any farmer looking to streamline their equipment needs</p>
-        </div>
-        </div>
-        <div className='z-30 'style={position} >
-          <img src={tractor4} alt="" />
-        </div>
-       
-      </section>
-       {/* last section */}
-        <section className='w-full h-full bg-[#12152D] flex gap-[-10%] items-center mt-[-20%]'>
-       
-        <div className='w-[70%] bg-[#F9EFE6] flex flex-col gap-6 p-16 '>
-          <h1 className='text-blue-950 text-[46px] font-mono'>Contact Us</h1>
-          <p  className='text-black'>
-            Have a question or need assistance with your rental? Our dedicated customer support team is here to help. Get in touch with us today and let us guide you through the process.
+      {/* ================= RENTING MADE EASY ================= */}
+      <section id="rental" className="flex lg:ml-35 flex-col md:flex-row items-center gap-8 px-6 py-16">
+
+        <div className="text-center md:text-left lg:ml-10">
+          <h3 className="text-white text-2xl font-bold mb-4">
+            Renting Made Easy
+          </h3>
+          <p className="text-gray-300">
+            At AgroRent, we believe that renting farm equipment should be a straightforward and stress-free process. <br />Our user-friendly platform and dedicated customer support team are here to guide you through every step, ensuring a seamless rental experience
           </p>
-         
+          <button onClick={() => navigate('/farmer-register ')} className='bg-yellow-400 border-radius:1rem text-blue-950 font-semibold px-4 py-2 mt-5 rounded-lg hover:bg-transparent border hover:text-white hover:border-yellow-400 transition'> Rent Now </button>
+        </div>
+        <img src={tractor3} alt="tractor" className="w-60 md:w-72" />
+      </section>
 
-          <button className='bg-[#12153D] text-yellow-500 w-fit px-6 py-2 rounded-md hover:bg-yellow-500 transition'>
-            inquire Now
+      {/* ================= TESTIMONIAL ================= */}
+      <section className="flex flex-col md:flex-row items-center mt-10">
+
+        <img
+          src={tractor4}
+          alt="tractor"
+          className="w-60 md:w-72 lg:w-[15%] lg:ml-10"
+        />
+        <div className="lg:bg-[#F9EFE6] p-8 md:p-16 w-full flex flex-col items-center gap-5 lg:rounded md:w-1/2 lg:w-full lg:mr-10">
+          <h2 className="lg:text-blue-950 text-white text-center text-4xl font-bold mb-4">
+            TESTIMONIAL
+          </h2>
+          <p className='text-gray-300 lg:text-black text-center'>Hear from our satisfied customers about their experience with AgroRent. Our unwavering commitment to quality and customer satisfaction has earned us a reputation as the go-to provider for farm equipment rentals</p>
+          <button className="lg:bg-[#12152D] lg:text-yellow-400 bg-yellow-400 text-black  px-6 py-2 rounded-md">
+            Inquire Now
           </button>
         </div>
-         <div className='w-[40%]'>
-          <img src={tractor2} alt="Tractor2" height={800} width={1000} className='pr-[15%]' />
-        </div>
-       
+
+
       </section>
-       <div className='flex  flex-col gap-8 justify-center items-center'>
-          <h1 className='text-white text-5xl mt-[5%] font-mono'>Join   Our   Community</h1>
-          <div className='w-[50%]'>
-          <p className=' text-gray-400'>Become a supplier with AgroRent and unlock new opportunities  to showcase your farm equipment to a growing network of farmers. Join our community and start earning today</p>
-          </div>
-          <button className='bg-yellow-500 text- rounded-2xl px-10 py-2 rounded-md hover:bg-yellow-400 transition'>Sign Up</button>
+
+      {/* ================= CONTACT ================= */}
+      <section id="contact" className="flex flex-col md:flex-row items-center mt-10">
+        <div className="bg-[#F9EFE6] p-8 md:p-16 w-full lg:rounded md:w-1/2 lg:w-full lg:ml-10">
+          <h2 className="text-blue-950 text-4xl font-bold mb-4">
+            Contact Us
+          </h2>
+          <p className="mb-6 text-blue-900">
+            Have a question or need assistance with your rental? Our dedicated customer support team is here to help. Get in touch with us today and let us guide you through the process.
+          </p>
+          <button className="bg-[#12152D] text-yellow-400 px-6 py-2 rounded-md">
+            Inquire Now
+          </button>
         </div>
 
-        <footer className='flex justify-around mt-[10%] text-gray-400 pb-19'>
-          <div className='mr-[10%]'>
-            <img src={logo} alt="Logo" height={200} width={100} className='mt-[5%] ml-[45%]' />
-          </div>
-          <div className='flex justify-between gap-70'>
-            <div>
-              <ul>
-                <li>quick links</li>
-                <li>Home</li>
-                <li>Rent</li>
-                <li>About</li>
-                <li>contact</li>
-              </ul>
-            </div>
-            <div>
-              <ul>
-                <li>quick links</li>
-                <li>Home</li>
-                <li>Rent</li>
-                <li>About</li>
-                <li>contact</li>
-              </ul>
-            </div>
-            <div>
-              <ul>
-                <li>quick links</li>
-                <li>Home</li>
-                <li>Rent</li>
-                <li>About</li>
-                <li>contact</li>
-              </ul>
-            </div>
-          </div>
-        </footer>
+        <img
+          src={tractor2}
+          alt="tractor"
+          className="w-full  lg:w-[25%] lg:mr-10"
+        />
+      </section>
 
+      {/* ================= FOOTER ================= */}
+      <footer className="flex md:flex-row gap-10 px-6 w-full justify-evenly py-16 text-gray-400 text-center md:text-left">
+        <img src={logo} alt="logo" className="w-24 mx-auto hidden md:mx-0 md:block lg:block" />
+
+        <div className="flex flex-col sm:flex-row gap-10 justify-center">
+          <ul>
+            <li className="font-bold">Quick Links</li>
+            <li>Home</li>
+            <li>Rent</li>
+            <li>About</li>
+            <li>Contact</li>
+          </ul>
+          <ul>
+            <li className="font-bold">Company</li>
+            <li>Careers</li>
+            <li>Support</li>
+            <li>FAQs</li>
+          </ul>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-10 justify-center">
+          <ul>
+            <li className="font-bold">Quick Links</li>
+            <li>Home</li>
+            <li>Rent</li>
+            <li>About</li>
+            <li>Contact</li>
+          </ul>
+          <ul>
+
+            <li className="font-bold">Company</li>
+            <li>Careers</li>
+            <li>Support</li>
+            <li>FAQs</li>
+
+          </ul>
+        </div>
+      </footer>
     </div>
-  )
-}
+  );
+};
 
-export default HOME
+export default HOME;

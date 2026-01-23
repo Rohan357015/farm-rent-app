@@ -139,19 +139,22 @@ export default function Profile() {
     return (
         <>
        <FarmerNavabar/>
-        <div className="bg-[#F5F5F0] min-h-screen p-8">
+        <div className="bg-[#F5F5F0] min-h-screen p-8  sm:p-6 lg:p-8 overflow-x-hidden">
            
             <h1 className="text-3xl font-bold text-green-700">User Profile</h1>
             <p className="text-gray-600 mb-6">Manage your account information</p>
 
             {/* PROFILE CARD */}
-            <div className="bg-white rounded-xl shadow p-6 flex justify-between mb-6">
-                <div className="flex gap-6">
+            <div className="bg-white rounded-xl shadow p-6 flex flex-col lg:flex-row justify-between gap-6 mb-6">
+
+               <div className="flex gap-6 flex-col sm:flex-col md:flex-row items-center md:items-start">
+
                     <img
                         src={profile.image}
                         className="w-24 h-24 rounded-full border-4 border-green-100 object-cover"
                     />
-                    <div>
+                   <div className="text-center md:text-left">
+
                         <h2 className="text-2xl font-bold text-black">{profile.name}</h2>
 
                         <div className="flex gap-3 items-center mt-1">
@@ -182,7 +185,7 @@ export default function Profile() {
 
                 <button
                     onClick={() => setShowImageModal(true)}
-                    className="bg-green-700 text-white px-5 h-10 rounded hover:bg-green-800"
+                    className="bg-green-700 text-white px-5 h-10 rounded hover:bg-green-800 w-full lg:w-auto"
                 >
                     Edit Profile
                 </button>
@@ -216,17 +219,18 @@ export default function Profile() {
             </div>
 
             {/* STATS */}
-            <div className="grid grid-cols-4 gap-4 mb-6">
+           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
                 {stats.map((s, i) => (
                     <div
                         key={i}
                         className="bg-white p-5 rounded-xl shadow flex justify-between items-center"
                     >
                         <div>
-                            <h3 className="text-2xl font-bold text-green-700">{s.value}</h3>
-                            <p className="text-gray-600 text-sm">{s.label}</p>
+                            <h3 className="text-2xl font-bold overflow-auto text-green-700">{s.value}</h3>
+                            <p className="text-gray-600 text-sm overflow-auto">{s.label}</p>
                         </div>
-                        <div className="bg-green-100 p-3 rounded-lg text-green-700">
+                        <div className="bg-green-100 overflow-x-auto rounded-lg text-green-700">
                             {s.icon}
                         </div>
                     </div>
@@ -234,8 +238,10 @@ export default function Profile() {
             </div>
 
             {/* MAIN GRID */}
-            <div className="grid grid-cols-3 gap-6">
-                <div className="col-span-2 space-y-6">
+           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+               <div className="lg:col-span-2 space-y-6 overflow-x-auto">
+
                     <InfoCard
                         title="Personal Information"
                         data={personalInfo}
@@ -258,7 +264,7 @@ export default function Profile() {
                             </button>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-4 overflow-x-auto">
                             {paymentMethods.map((m, i) => (
                                 <div key={i} className="border rounded-lg p-4">
                                     <div className="flex justify-between mb-2">

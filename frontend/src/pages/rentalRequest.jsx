@@ -54,20 +54,22 @@ export default function RentalRequest() {
   return (
     <>
       <FarmerNavabar />
-      <div className="min-h-screen bg-yellow-50 p-8">
+      <div className="min-h-screen bg-yellow-50 p-8 sm:p-6 lg:p-8 overflow-x-hidden">
         <h1 className="text-2xl font-bold text-green-700 mb-6">
           Rental Requests
         </h1>
 
         {/* Requests */}
-        <div className="space-y-4 overflow-y-auto max-h-[calc(100vh-200px)] pr-2">
+       <div className="space-y-4 overflow-y-auto max-h-[calc(100vh-200px)] pr-2 overflow-x-hidden">
+
           {latestRequests.map((r) => (
             <div
               key={r._id}
-              className="bg-white rounded-lg p-5 flex justify-between items-center shadow-sm"
+             className="bg-gray-100 rounded-md shadow-sm lg:bg-white rounded-lg p-5 flex flex-col lg:flex-row gap-4 lg:gap-0 justify-between items-start lg:items-center shadow-sm"
+
             >
               {/* Farmer */}
-              <div className="flex gap-4 items-center ">
+              <div className="flex gap-4 items-center  w-full lg:w-auto ">
                 <div className="h-12 w-12 rounded-full   bg-green-700 flex items-center justify-center font-bold">
                   <img src={r.farmer?.image} alt="" className="rounded-full" />
                 </div>
@@ -80,7 +82,8 @@ export default function RentalRequest() {
               </div>
 
               {/* Product */}
-              <div className="">
+              <div className="w-full rounded-md p-4 flex gap-3 bg-white">
+              <div className="w-full">
                 <p className="font-bold text-black text-[1.1rem]">
                   {r.product?.equipmentName}
                 </p>
@@ -90,7 +93,8 @@ export default function RentalRequest() {
               </div>
 
               {/* Period */}
-              <div className="text-sm text-black  text-center">
+             <div className="text-sm text-black text-left lg:text-center w-full lg:w-auto">
+
                 <p className="font-bold text-[1.1rem]">Rental Period</p>
                 <p>
                   {formatDate(r.startDate)} → {formatDate(r.endDate)}
@@ -101,26 +105,30 @@ export default function RentalRequest() {
               </div>
 
               {/* Price */}
-              <div className="font-bold text-lg text-green-700">
+              <div className="font-bold text-lg text-green-700 w-full lg:w-auto">
+
                 ₹ {r.totalPrice?.toLocaleString("en-IN")}
               </div>
+               </div>
+
 
               {/* Actions */}
-              <div className="ml-6 text-right space-y-2">
+              <div className="lg:ml-6 text-left lg:text-right space-y-2 w-full lg:w-auto">
+
                 <p className={`text-sm font-medium ${statusBadge[r.status]}`}>
                   ● {r.status}
                 </p>
 
                 {r.status === "Pending" && (
                   <>
-                    <button className="w-full bg-green-700 text-white px-4 py-1 rounded text-sm"
+                    <button className="w-full bg-green-700 py-2 text-white px-4 py-1 rounded text-sm"
                     onClick={()=>{
                         approveRequest(r._id);
                     }}
                     >
                       Approve
                     </button>
-                    <button className="w-full border px-4  bg-red-700 py-1 rounded text-sm"
+                    <button className="w-full border px-4 py-2 bg-red-700 py-1 rounded text-sm"
                      onClick={()=>{
                         declineRequest(r._id);
                     }}
@@ -146,7 +154,7 @@ export default function RentalRequest() {
                 };
 
                 {r.status !== "Pending" && (
-                  <button className="w-full border px-4 py-1 rounded text-sm">
+                  <button className="w-full text-black mt-2 bg-gray-400 py-2 border px-4  rounded text-sm">
                     View Details
                   </button>
                 )}

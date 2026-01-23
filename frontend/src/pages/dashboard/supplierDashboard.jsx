@@ -11,8 +11,11 @@ const SupplierDashboard = () => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+  if (user?.role === "supplier") {
     getSupplierDashboard();
-  }, []);
+  }
+}, [user]);
+
 
   return (
     <div className="min-h-screen bg-[#12152D] text-white relative">
@@ -53,8 +56,8 @@ const SupplierDashboard = () => {
           </section>
 
           {/* STATS */}
-          <section className="flex justify-around text-center font-serif">
-            <div>
+          <section className="flex justify-around overflow-auto text-center font-serif">
+            <div className="oveerflow-auto">
               <h2 className="text-green-700">{supplierStats?.totalRentals || 0}</h2>
               <p>Rentals</p>
             </div>

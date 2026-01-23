@@ -19,21 +19,26 @@ function DashboardCentre() {
   const { updateProduct, deleteProduct } = useProductStore();
   const { getRequest } = useBookingStore();
   const [requests, setRequests] = useState([]);
-  
 
-  useEffect(() => {
-    const loadRequests = async () => {
-      try {
-        const data = await getRequest();
-        setRequests(data || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-       
-      }
-    };
-    loadRequests();
-  }, []);
+
+ useEffect(() => {
+  const loadRequests = async () => {
+    try {
+      const data = await getRequest();
+
+      const sortedData = (data || []).sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      setRequests(sortedData);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  loadRequests();
+}, []);
+
 
   const formatDate = (date) =>
     new Date(date).toLocaleDateString("en-IN", {
@@ -46,8 +51,8 @@ function DashboardCentre() {
     Math.ceil((new Date(end) - new Date(start)) / (1000 * 60 * 60 * 24));
 
   const latestRequests = [...requests]
-  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-  .slice(0, 3);
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 3);
 
 
 
@@ -142,19 +147,23 @@ function DashboardCentre() {
       <div className=" w-full p-6 space-y-8">
 
         {/* TOP STATS */}
-        <div className="grid grid-cols-4 gap-5 w-full">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5 w-full overflow-x-hidden">
 
-          <div className="bg-white rounded-xl shadow p-4 flex items-center space-x-4">
-            <div className="bg-green-100 text-green-700 p-3 rounded-lg">
-              <i className="fas fa-tractor"></i>
+          {/* TOTAL EQUIPMENT */}
+          <div className="bg-white rounded-xl shadow p-4 flex items-center space-x-4 min-w-0">
+            <div className="bg-green-100  text-green-700 p-3 rounded-lg">
+              <i className="fas fa-tractor text-black"></i>
             </div>
             <div>
-              <p className="text-xl font-semibold">{supplierProducts?.length || 0}</p>
+              <p className="text-xl font-semibold">
+                {supplierProducts?.length || 0}
+              </p>
               <p className="text-gray-500 text-sm">Total Equipment</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow p-4 flex items-center space-x-4">
+          {/* ACTIVE RENTALS */}
+          <div className="bg-white rounded-xl shadow p-4 flex items-center space-x-4 min-w-0">
             <div className="bg-orange-100 text-orange-700 p-3 rounded-lg">
               <i className="fas fa-hourglass-half"></i>
             </div>
@@ -164,17 +173,19 @@ function DashboardCentre() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow p-4 flex items-center space-x-4">
+          {/* MONTHLY EARNINGS */}
+          <div className="bg-white rounded-xl shadow p-4 flex items-center space-x-4 min-w-0">
             <div className="bg-yellow-100 text-yellow-700 p-3 rounded-lg">
               <i className="fas fa-wallet"></i>
             </div>
             <div>
-              <p className="text-xl font-semibold">$4,280</p>
+              <p className="text-xl font-semibold">₹4,280</p>
               <p className="text-gray-500 text-sm">Monthly Earnings</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow p-4 flex items-center space-x-4">
+          {/* AVERAGE RATING */}
+          <div className="bg-white rounded-xl shadow p-4 flex items-center space-x-4 min-w-0">
             <div className="bg-pink-100 text-pink-700 p-3 rounded-lg">
               <i className="fas fa-star"></i>
             </div>
@@ -183,7 +194,9 @@ function DashboardCentre() {
               <p className="text-gray-500 text-sm">Average Rating</p>
             </div>
           </div>
+
         </div>
+
 
 
         {/* MY EQUIPMENT SECTION */}
@@ -495,7 +508,7 @@ function DashboardCentre() {
           </div>
 
           {/* Tabs (UI only for now) */}
-         
+
 
           {/* Requests List */}
           {latestRequests && latestRequests.length > 0 ? (

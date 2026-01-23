@@ -28,12 +28,14 @@ const handleSubmit = async (e) => {
   }
 }
   return (
-    <div className='bg-[#12152D] h-screen flex justify-around items-center text-white overflow-hidden'>
+   <div className='bg-[#12152D] min-h-screen flex flex-col lg:flex-row justify-around items-center text-white overflow-x-hidden px-4 lg:px-0'>
+
       {/* Left Section - Tractor Image */}
       <motion.div
         initial={{ x: -200, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 1, ease: 'easeOut' }}
+        className='hidden lg:block'
       >
         <img className='opacity-90' src={tractor} alt="Tractor" height={800} width={800} />
       </motion.div>

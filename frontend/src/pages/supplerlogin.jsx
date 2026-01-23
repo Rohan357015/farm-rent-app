@@ -34,6 +34,7 @@ function SupplierLogin() {
         initial={{ x: -200, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 1, ease: 'easeOut' }}
+        className='hidden lg:block'
       >
         <img className='opacity-90' src={tractor} alt="Tractor" height={800} width={800} />
       </motion.div>

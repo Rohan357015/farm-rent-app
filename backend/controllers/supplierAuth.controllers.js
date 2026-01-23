@@ -163,3 +163,11 @@ export const deleteUser = async (req, res) => {
   }
 };
   
+
+export const verifyToken2 = async (req, res) => {
+  try {
+    res.json({ isValid: true, user: req.user });
+  } catch (error) {
+    res.status(401).json({ isValid: false });
+  }
+};

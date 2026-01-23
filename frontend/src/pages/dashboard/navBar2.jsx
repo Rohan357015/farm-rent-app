@@ -24,20 +24,26 @@ const FarmerNavabar = () => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+  if (user?.role === "farmer") {
     getFarmerDashboard();
-  }, []);
+  }
+}, [user]);
 
-  useEffect(() => {
-    const loadBookings = async () => {
-      try {
-        const data = await getFarmerBookings();
-        setBookings(data || []);
-      } catch (error) {
-        console.error("Error loading bookings:", error);
-      }
-    };
-    loadBookings();
-  }, []);
+useEffect(() => {
+  if (user?.role !== "farmer") return;
+
+  const loadBookings = async () => {
+    try {
+      const data = await getFarmerBookings();
+      setBookings(data || []);
+    } catch (error) {
+      console.error("Error loading bookings:", error);
+    }
+  };
+
+  loadBookings();
+}, [user]);
+
 
   const activeRentals =
     bookings?.filter((b) => b.status === "Approved").length || 0;
@@ -68,7 +74,7 @@ const FarmerNavabar = () => {
 
           {/* Logo */}
           <Link
-            to="/farmer-dashboard"
+           to={user.role === "farmer" ? "/farmer-dashboard" : "/supplier-dashboard"}
             className="text-2xl md:text-3xl font-bold"
           >
             🌽 AgroRent
@@ -135,7 +141,7 @@ const FarmerNavabar = () => {
             />
           </Link>
 
-          <Link to="/farmer-profile">
+          <Link to={user.role === "farmer" ? "/farmer-profile" : "/supplier-profile"}>
             <FontAwesomeIcon
               icon={faUser}
               className="text-blue-950 text-xl md:text-2xl hover:text-yellow-600 transition"

@@ -4,6 +4,7 @@ import { create } from "zustand";
 
 export const useAuthStore = create((set, get) => ({
   user: null,
+  role: null,
   loading: false,
   checkingAuth: true,
   stats: null,
@@ -36,7 +37,12 @@ export const useAuthStore = create((set, get) => ({
     try {
       const response = await axios.post("/auth/supplier/signup", supplierData);
       toast.success(response.data.message || "Supplier registered successfully");
-      set({ user: response.data.supplier, loading: false });
+      set({
+        user: response.data.supplier,
+        role: "supplier",        // 🔥 HERE
+        loading: false
+      });
+
       return true;
     } catch (error) {
       toast.error(error.response?.data?.message || "Error registering supplier");
@@ -50,7 +56,12 @@ export const useAuthStore = create((set, get) => ({
     try {
       const response = await axios.post("/auth/farmer/signup", farmerData);
       toast.success(response.data.message || "Farmer registered successfully");
-      set({ user: response.data.farmer, loading: false });
+      set({
+        user: response.data.farmer,
+        role: "farmer",          // 🔥 HERE
+        loading: false
+      });
+
       return true;
     } catch (error) {
       toast.error(error.response?.data?.message || "Error registering farmer");
@@ -64,7 +75,12 @@ export const useAuthStore = create((set, get) => ({
     try {
       const response = await axios.post("/auth/farmer/login", credentials);
       toast.success(response.data.message || "Farmer logged in successfully");
-      set({ user: response.data.farmer, loading: false });
+      set({
+        user: response.data.farmer,
+        role: "farmer",          // 🔥 HERE
+        loading: false
+      });
+
       return true;
     } catch (error) {
       toast.error(error.response?.data?.message || "Error logging in farmer");
@@ -78,7 +94,12 @@ export const useAuthStore = create((set, get) => ({
     try {
       const response = await axios.post("/auth/supplier/login", credentials);
       toast.success(response.data.message || "Supplier logged in successfully");
-      set({ user: response.data.supplier, loading: false });
+      set({
+        user: response.data.supplier,
+        role: "supplier",        // 🔥 HERE
+        loading: false
+      });
+
       return true;
     } catch (error) {
       toast.error(error.response?.data?.message || "Error logging in supplier");

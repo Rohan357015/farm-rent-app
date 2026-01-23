@@ -3,7 +3,7 @@ import { supplierSignup, supplierLogin, supplierLogout ,getSupplierProfile,updat
 import { ProtectRoute } from "../middleware/auth.middleware.js";
 import { supplierRoute } from "../middleware/farmer.middleware.js";   
 import { storeRefreshToken ,refreshAccessToken } from "../utils/token.js";
-import { verifyToken } from "../controllers/farmerAuth.controllers.js";
+import { verifyToken2 } from "../controllers/supplierAuth.controllers.js";
 
 const supplierRouter = express.Router();
 
@@ -13,7 +13,7 @@ supplierRouter.post("/supplier/signup", supplierSignup);
 supplierRouter.post("/supplier/login", supplierLogin);
 supplierRouter.post("/supplier/logout", supplierLogout);
 supplierRouter.get("/supplier/getSupplierProfile", ProtectRoute, supplierRoute, getSupplierProfile);
-supplierRouter.get("/supplier/verify", ProtectRoute, verifyToken);
+supplierRouter.get("/supplier/verify", ProtectRoute, verifyToken2);
 supplierRouter.put("/supplier/update", ProtectRoute, updateProfile);
 supplierRouter.delete("/supplier/delete", ProtectRoute, deleteUser);
 

@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import http from 'http';
 import { connectDB } from './lib/db.js';
 import farmerRoutes from './routes/farmer.routes.js';
 import supplierRoutes from './routes/supplier.routes.js';
@@ -10,6 +11,7 @@ import cookieParser from 'cookie-parser';
 import bookRouter from './routes/book.routes.js';
 import CartRouter from './routes/cart.route.js';
 import authTokenRoutes from "./routes/auth.routes.js";
+import { Server } from 'socket.io';
 
 dotenv.config();
 
@@ -18,7 +20,20 @@ const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
 
 // ✅ FIX 1: Dynamic CORS configuration for Render deployment
+const server = http.createServer(app);
 
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173", // frontend
+    credentials: true
+  }
+});
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+});
+
+
+app.set("io", io);
 
 app.use(
   cors({
@@ -56,7 +71,7 @@ app.get("/health", (req, res) => {
   res.json({ status: "Server is running" });
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   connectDB();
   console.log(`Server is running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);

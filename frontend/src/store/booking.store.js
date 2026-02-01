@@ -1,11 +1,34 @@
 import { create } from "zustand";
 import axios from "../lib/axios.js";
 import { toast } from "react-hot-toast";
-import { approveRequest, CompleteBookings } from "../../../backend/controllers/booking.controller.js";
+import { socket } from "../lib/socket.js";
+
 
 
 export const useBookingStore = create((set,get) => ({
   loading: false,
+  requests: [],
+
+  // ================= SOCKET INIT =================
+  initSocket: () => {
+    // avoid duplicate listeners
+    socket.off("new-booking");
+
+    socket.on("connect", () => {
+      console.log("🟢 Socket connected:", socket.id);
+    });
+
+    // 🔥 REAL-TIME NEW BOOKING
+    socket.on("new-booking", (booking) => {
+      console.log("📢 Real-time booking received:", booking);
+
+      set((state) => ({
+        requests: [booking, ...state.requests],
+      }));
+
+      toast.success("New rental request received!");
+    });
+  },
 
   addBooking: async (productId, bookingData) => {
     try {
@@ -59,8 +82,9 @@ export const useBookingStore = create((set,get) => ({
 getRequest : async()=>{
   try{
     set({loading:true});
-    const res = await axios.get('bookings/rental-request');
+    const res = await axios.get('/bookings/rental-request');
     set({loading:false});
+    set({requests:res.data.bookings});
     return res.data.bookings;
     toast.success("Fetched Request Succesfully");
 
@@ -77,6 +101,14 @@ approveRequest: async (bookingId) => {
     set({ loading: true });
 
     const res = await axios.put(`/bookings/approve/${bookingId}`);
+     set((state) => ({
+      requests: state.requests.map((r) =>
+        r._id === bookingId
+          ? { ...r, status: "Approved" }
+          : r
+      ),
+      loading: false,
+    }));
 
     toast.success("Booking approved successfully");
 
@@ -99,6 +131,15 @@ declineRequest: async (bookingId) => {
     set({ loading: true });
 
     const res = await axios.put(`/bookings/decline/${bookingId}`);
+    set((state) => ({
+      requests: state.requests.map((r) =>
+        r._id === bookingId
+          ? { ...r, status: "Rejected" }
+          : r
+      ),
+      loading: false,
+    }));
+
 
     toast.success("Booking declined successfully");
 

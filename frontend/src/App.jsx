@@ -21,6 +21,7 @@ import { useShallow } from "zustand/react/shallow";
 import RentalRequest from "./pages/rentalRequest.jsx";
 import FarmerProfileCard from "./pages/dashboard/farmerprofile.jsx";
 import SupplierProfile from "./pages/dashboard/supplierProfile.jsx";
+import { useBookingStore } from "./store/booking.store.js";
 function App() {
   const { checkAuth, checkingAuth, user } = useAuthStore(
     useShallow((state) => ({
@@ -29,6 +30,12 @@ function App() {
       user: state.user,
     }))
   );
+
+  const{ initSocket } = useBookingStore();
+
+  React.useEffect(() => {
+    initSocket();
+  }, []);
 
   React.useEffect(() => {
     if (!user) {

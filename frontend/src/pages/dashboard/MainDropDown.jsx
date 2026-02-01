@@ -5,6 +5,7 @@ import { useAuthStore } from "../../store/authstore.js";
 
 const MainDropDown = () => {
     const [open, setOpen] = useState(true);
+    const {user} = useAuthStore();
     const [open2, setOpen2] = useState(true);
     const farmerLogout = useAuthStore((state) => state.farmerLogout);
     const navigate = useNavigate();
@@ -30,34 +31,35 @@ const MainDropDown = () => {
                         <li>
                             <a
                                 className="block p-3 pl-10 hover:bg-gray-400 rounded"
-                                onClick={() => navigate("/browse-equipments")}
+                                onClick={() => navigate(user?.role ==="farmer" ? "/farmer-dashboard" : "/supplier-equipments")}
                             >
-                              <Search className="inline-block mr-2" /> Browse Equipment
+                              <Search className="inline-block mr-2" /> {user?.role ==="farmer" ? "Browse Equipments" : "My Equipments"}
                             </a>
                         </li>
                         <li>
                             <a
                                 className="block p-3 pl-10 hover:bg-gray-400 rounded"
-                                onClick={() => navigate("/farmer-bookings")}
+                                onClick={() => navigate(user?.role ==="farmer" ? "/farmer-bookings" : "/supplier-rentals")}
                             >
-                               <Home className="inline-block mr-2" /> My Rentals
+
+                               <Home className="inline-block mr-2" /> {user?.role ==="farmer" ? "My Rentals" : "Rental Requests"}
                             </a>
                         </li>
                          <li>
                             <a
                                 className="block p-3 pl-10 hover:bg-gray-400 rounded"
-                                onClick={() => navigate("/cart")}
+                                onClick={() => navigate(user?.role ==="farmer" ? "/cart" : "/supplier-cart")}
                             >
-                               <ShoppingCart className="inline-block mr-2" /> Cart
+                              {user.role==="farmer" ? <ShoppingCart className="inline-block mr-2" /> :<Wallet className="inline-block mr-2" />} {user?.role ==="farmer" ? "My Cart" : "Supplier Cart"}
                             </a>
                         </li>
                         
                         <li>
                             <a
                                 className="block p-3 pl-10 hover:bg-gray-400 rounded"
-                                onClick={() => navigate("/payments")}
+                                onClick={() => navigate(user?.role ==="farmer" ? "/payments" : "/supplier-earnings")}
                             >
-                               <Wallet className="inline-block mr-2" /> Payments
+                               <Wallet className="inline-block mr-2" /> {user?.role ==="farmer" ? "Payment History" : "Earnings History"}
                             </a>
                         </li>
                         <li>

@@ -38,6 +38,9 @@ export const addBooking = async (req, res) => {
 
     await booking.save();
 
+    const io = req.app.get("io");
+    io.emit("new-booking", booking);
+
     res.status(201).json({
       message: "Booking created successfully",
       booking,
@@ -92,6 +95,8 @@ export const getSupplierRequest = async (req, res) => {
   try {
     const SupplierId = req.user.id;
     const bookings = await Booking.find({ supplier: SupplierId, status: { $ne: "Cancelled" } }).populate("product").populate("farmer");
+    // const io = req.app.get("io");
+    // io.emit("supplierBookings", { bookings });
     res.json({ bookings });
 
   } catch (error) {
@@ -170,4 +175,15 @@ export const CompleteBookings = async (req, res) => {
   } catch (error) {
     console.error("complete booking error:", error.message);
   }
+};
+
+export const clearBookingHistory = async (req, res) => {
+    try{
+      const farmerId = req.user.id;
+      await Booking.deleteMany({farmer: farmerId, status: "Completed"});
+      res.status(200).json({message: "Booking history cleared"});
+    }catch(error){
+      console.error("Clear Booking History Error:", error.message);
+      res.status(500).json({message: "Failed to clear booking history"});
+    }
 };

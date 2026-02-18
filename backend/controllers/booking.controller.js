@@ -84,6 +84,12 @@ export const cancelBooking = async (req, res) => {
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
+    const io = req.app.get("io");
+
+    io.emit("booking-updated", {
+      bookingId: booking._id,
+      status: "Cancelled",
+    });
 
     res.json({ message: "Booking cancelled", booking });
   } catch (error) {
@@ -167,6 +173,12 @@ export const CompleteBookings = async (req, res) => {
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
+    const io = req.app.get("io");
+
+    io.emit("booking-updated", {
+      bookingId: booking._id,
+      status: "Completed",
+    });
     res.status(200).json({
       message: "Booking Completed successfully",
       booking
@@ -178,12 +190,12 @@ export const CompleteBookings = async (req, res) => {
 };
 
 export const clearBookingHistory = async (req, res) => {
-    try{
-      const farmerId = req.user.id;
-      await Booking.deleteMany({farmer: farmerId, status: "Completed"});
-      res.status(200).json({message: "Booking history cleared"});
-    }catch(error){
-      console.error("Clear Booking History Error:", error.message);
-      res.status(500).json({message: "Failed to clear booking history"});
-    }
+  try {
+    const farmerId = req.user.id;
+    await Booking.deleteMany({ farmer: farmerId, status: "Completed" });
+    res.status(200).json({ message: "Booking history cleared" });
+  } catch (error) {
+    console.error("Clear Booking History Error:", error.message);
+    res.status(500).json({ message: "Failed to clear booking history" });
+  }
 };

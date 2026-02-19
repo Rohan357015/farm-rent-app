@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { connections } from "mongoose";
 import bcrypt from "bcryptjs";
 
 const supplierSchema = new mongoose.Schema(
@@ -32,7 +32,9 @@ const supplierSchema = new mongoose.Schema(
       landmark: {type:String},
     },
     image:{type:String},
+    
   },
+ 
   
   { timestamps: true }
 );

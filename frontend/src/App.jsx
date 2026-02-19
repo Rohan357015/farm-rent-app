@@ -22,6 +22,7 @@ import RentalRequest from "./pages/rentalRequest.jsx";
 import FarmerProfileCard from "./pages/dashboard/farmerprofile.jsx";
 import SupplierProfile from "./pages/dashboard/supplierProfile.jsx";
 import { useBookingStore } from "./store/booking.store.js";
+import ConnectionsPage from "./pages/connectionPage.jsx";
 function App() {
   const { checkAuth, checkingAuth, user } = useAuthStore(
     useShallow((state) => ({
@@ -31,7 +32,7 @@ function App() {
     }))
   );
 
-  const{ initSocket } = useBookingStore();
+  const { initSocket } = useBookingStore();
 
   React.useEffect(() => {
     initSocket();
@@ -89,6 +90,11 @@ function App() {
           <Route path="/supplier-rentals" element={user ? <ProtectedRoute allowedRole="supplier"><RentalRequest /></ProtectedRoute> : <SupplierLogin />} />
           <Route path="/farmer-profile" element={user ? <ProtectedRoute allowedRole="farmer"><FarmerProfileCard /></ProtectedRoute> : <FarmerLogin />} />
           <Route path="/supplier-profile" element={user ? <ProtectedRoute allowedRole="supplier"><SupplierProfile /></ProtectedRoute> : <SupplierLogin />} />
+          <Route
+            path="/connections"
+            element={user ? <ConnectionsPage /> : <FarmerLogin />}
+          />
+
 
         </Routes>
         <Toaster />

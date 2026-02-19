@@ -3,46 +3,50 @@ import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faUser } from "@fortawesome/free-solid-svg-icons";
 import { useAuthStore } from "../../store/authstore";
+import { SearchResult } from "../searchresult.jsx";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 
-import { Menu, X } from "lucide-react";
+import { Menu, X, Plug, MessageSquare, RadioTower } from "lucide-react";
 import AutoWeather from "../../components/weatherApp.jsx";
 import MainDropDown from "../dashboard/MainDropDown.jsx";
 
 
 import { useBookingStore } from "../../store/booking.store.js";
+import { useProductStore } from "../../store/product.store.js";
 
 
 const FarmerNavabar = () => {
+  const [search, setSearch] = useState("");
+  const { products, fetchProducts } = useProductStore();
 
 
   const { getFarmerBookings } = useBookingStore();
-  const { user, getFarmerDashboard } = useAuthStore();
+  const { user, allUser, AllUser, getFarmerDashboard } = useAuthStore();
 
   const [bookings, setBookings] = useState([]);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-  if (user?.role === "farmer") {
-    getFarmerDashboard();
-  }
-}, [user]);
-
-useEffect(() => {
-  if (user?.role !== "farmer") return;
-
-  const loadBookings = async () => {
-    try {
-      const data = await getFarmerBookings();
-      setBookings(data || []);
-    } catch (error) {
-      console.error("Error loading bookings:", error);
+    if (user?.role === "farmer") {
+      getFarmerDashboard();
     }
-  };
+  }, [user]);
 
-  loadBookings();
-}, [user]);
+  useEffect(() => {
+    if (user?.role !== "farmer") return;
+
+    const loadBookings = async () => {
+      try {
+        const data = await getFarmerBookings();
+        setBookings(data || []);
+      } catch (error) {
+        console.error("Error loading bookings:", error);
+      }
+    };
+
+    loadBookings();
+  }, [user]);
 
 
   const activeRentals =
@@ -55,6 +59,46 @@ useEffect(() => {
         user.ratings.length
       ).toFixed(1)
       : "-";
+
+
+  const [searchType, setSearchType] = useState("users");
+
+  const filteredResults = useMemo(() => {
+    if (!search.trim()) return { products: [], user: [] };
+
+    const searchLower = search.toLowerCase();
+
+    let filteredProducts = [];
+    let filteredUsers = [];
+
+    if (searchType === "products") {
+      filteredProducts = products.filter((item) =>
+        item.equipmentName?.toLowerCase().includes(searchLower) ||
+        item.brand?.toLowerCase().includes(searchLower) ||
+        item.model?.toLowerCase().includes(searchLower)
+      );
+    }
+    return {
+      products: filteredProducts,
+
+    };
+  }, [search, products, searchType]);
+
+ useEffect(() => {
+  if (searchType !== "users") return;
+
+  const delay = setTimeout(() => {
+    if (search.trim() !== "") {
+      AllUser(search);
+    }
+  }, 400);
+
+  return () => clearTimeout(delay);
+
+}, [search, searchType]);
+
+
+
 
 
 
@@ -74,7 +118,7 @@ useEffect(() => {
 
           {/* Logo */}
           <Link
-           to={user.role === "farmer" ? "/farmer-dashboard" : "/supplier-dashboard"}
+            to={user.role === "farmer" ? "/farmer-dashboard" : "/supplier-dashboard"}
             className="text-2xl md:text-3xl font-bold"
           >
             🌽 AgroRent
@@ -85,37 +129,60 @@ useEffect(() => {
         <div className="hidden md:flex flex-1 justify-center">
           <ul className="flex gap-8 text-lg font-semibold">
             <li>
-              <Link
-                to={user.role === "farmer" ? "/farmer-dashboard" : "/supplier-dashboard"}
-                className="hover:text-yellow-500 transition"
-              >
-                Dashboard
-              </Link>
+              <div className="flex items-center">
+
+                {/* Search Type Dropdown */}
+                <select
+                  name="searchType"
+                  value={searchType}
+                  onChange={(e) => setSearchType(e.target.value)}
+                  className=" px-3 py-2
+                    border border-gray-300
+                     border-r-0
+                rounded-l-md
+                  bg-gray-50
+                     text-sm
+                 focus:outline-none
+                   focus:ring-2
+                  focus:ring-yellow-500 "
+                >
+
+                  <option value="users">Users</option>
+                  <option value="products">Products</option>
+                </select>
+
+                {/* Search Input */}
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="
+      px-4 py-1
+      border border-gray-300
+      border-l-0
+      rounded-r-md
+      w-64
+      focus:outline-none
+      
+     
+    "
+                />
+
+              </div>
+
+
+
+
             </li>
+
 
             <li>
               <Link
-                to={user.role === "farmer" ? "" : "/supplier-equipments"}
+                to={user.role === "farmer" ? "/connections" : "/connections"}
                 className="hover:text-yellow-500 transition"
               >
-                {user.role === "farmer" ? " Active Equipments" : "My Equipments"}
-              </Link>
-            </li>
-
-            <li>
-              <Link
-                to={user.role === "farmer" ? "/farmer-bookings" : "/supplier-rentals"}
-                className="hover:text-yellow-500 transition"
-              >
-                {user.role === "farmer" ? "My Bookings" : " Requested"}
-              </Link>
-            </li>
-            <li>
-              <Link
-                to={user.role === "farmer" ? "/farmer-help" : "/supplier-help"}
-                className="hover:text-yellow-500 transition"
-              >
-                Help
+                <RadioTower className="w-6 h-6 inline mr-1" /> My Network
               </Link>
             </li>
 
@@ -124,13 +191,30 @@ useEffect(() => {
                 to={user.role === "farmer" ? "/farmer-chat" : "/supplier-earnings"}
                 className="hover:text-yellow-500 transition"
               >
-                {user.role === "farmer" ? "Chat" : " My Earnings"}
+                <MessageSquare className="w-6 h-6 inline mr-1" /> {user.role === "farmer" ? "Chat" : "Chat"}
               </Link>
             </li>
 
 
           </ul>
         </div>
+
+
+        {search && (
+          <div className="absolute top-[70px] left-[25%] bg-white shadow-lg w-[40rem] p-10 rounded-md z-50">
+
+            <SearchResult
+              data={{
+                products: filteredResults.products,
+                users: allUser
+              }}
+              searchType={searchType}
+              search={search}
+            />
+
+          </div>
+        )}
+
 
         {/* RIGHT ICONS */}
         <div className="ml-auto flex items-center gap-6">

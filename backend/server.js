@@ -11,6 +11,7 @@ import cookieParser from 'cookie-parser';
 import bookRouter from './routes/book.routes.js';
 import CartRouter from './routes/cart.route.js';
 import authTokenRoutes from "./routes/auth.routes.js";
+import connectionRouter from './routes/connection.routes.js';
 import { Server } from 'socket.io';
 
 dotenv.config();
@@ -53,6 +54,8 @@ app.use("/api/products", productRouter);
 app.use("/api/bookings", bookRouter);
 app.use("/api/cart", CartRouter);
 app.use("/api/auth", authTokenRoutes);
+app.use("/api", connectionRouter);
+
 
 // ✅ FIX 2: Improved production static files serving
 

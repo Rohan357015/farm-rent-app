@@ -1,3 +1,4 @@
+
 import axios from "../lib/axios.js";
 import { toast } from "react-hot-toast";
 import { create } from "zustand";
@@ -9,6 +10,7 @@ export const useAuthStore = create((set, get) => ({
   checkingAuth: true,
   stats: null,
   supplierStats: null,
+  allUser : null,
 
   checkAuth: async () => {
     set({ checkingAuth: true });
@@ -216,4 +218,23 @@ export const useAuthStore = create((set, get) => ({
       return false;
     }
   },
+ AllUser: async (query) => {
+  if (!query.trim()) {
+    set({ allUser: [] });
+    return;
+  }
+  set({ loading: true });
+  try {
+    const res = await axios.get(`/user/search?q=${query}`);
+
+    set({
+      allUser: res.data.users
+    });
+   set({ loading: false });
+  } catch (error) {
+    console.error("User search error:", error);
+  }
+},
+
+
 }));

@@ -28,7 +28,8 @@ const farmerSchema = new mongoose.Schema(
       country: { type: String, default: "India" },
       alternatePhone: { type: String },
       landmark: {type:String},
-    }
+    },
+    
   },
   { timestamps: true }
 );

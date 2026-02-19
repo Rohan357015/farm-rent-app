@@ -1,117 +1,12 @@
 import { useEffect, useState } from "react";
 import { useConnectionStore } from "../store/connection.store";
-import { useAuthStore } from "../store/authstore.js"; 
+import { useAuthStore } from "../store/authstore";
+import defaultAvatar from "../assets/default-avtar.png";
+import { useNavigate } from "react-router-dom";
+import FarmerNavBar from "./dashboard/navBar2.jsx";
 
-/* ─────────────────────────────────────────────
-   Tiny helpers
-───────────────────────────────────────────── */
-const Avatar = ({ name = "?" }) => {
-  const initials = name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-  const colors = [
-    "#2d6a4f", "#1b4332", "#40916c", "#52b788",
-    "#1e6091", "#154360", "#1a5276", "#117a65",
-  ];
-  const color = colors[name.charCodeAt(0) % colors.length];
-  return (
-    <div
-      style={{ background: color }}
-      className="avatar-circle"
-    >
-      {initials}
-    </div>
-  );
-};
-
-const StatusBadge = ({ status }) => (
-  <span className={`badge badge-${status.toLowerCase()}`}>{status}</span>
-);
-
-/* ─────────────────────────────────────────────
-   ConnectionCard
-───────────────────────────────────────────── */
-const ConnectionCard = ({ conn, currentUserId, actions }) => {
-  const isReceiver = conn.receiverId === currentUserId || conn.receiver?._id === currentUserId;
-  const isPending = conn.status === "Pending";
-  const isAccepted = conn.status === "Accepted";
-  const isSentByMe = conn.senderId === currentUserId || conn.sender?._id === currentUserId;
-
-  const person = isSentByMe ? conn.receiver : conn.sender;
-  const personName = person?.name || "Unknown";
-  const personEmail = person?.email || "";
-  const role = isSentByMe ? conn.receiverRole : conn.senderRole;
-
-  return (
-    <div className="conn-card">
-      <div className="conn-card-left">
-        <Avatar name={personName} />
-        <div className="conn-info">
-          <p className="conn-name">{personName}</p>
-          <p className="conn-email">{personEmail}</p>
-          <p className="conn-role">{role}</p>
-        </div>
-      </div>
-
-      <div className="conn-card-right">
-        <StatusBadge status={conn.status} />
-
-        <div className="conn-actions">
-          {/* Incoming pending → Accept / Decline */}
-          {isPending && isReceiver && (
-            <>
-              <button
-                className="btn btn-accept"
-                onClick={() => actions.accept(conn._id)}
-              >
-                ✓ Accept
-              </button>
-              <button
-                className="btn btn-decline"
-                onClick={() => actions.decline(conn._id)}
-              >
-                ✗ Decline
-              </button>
-            </>
-          )}
-
-          {/* Sent pending → Withdraw */}
-          {isPending && isSentByMe && (
-            <button
-              className="btn btn-withdraw"
-              onClick={() => actions.withdraw(conn._id)}
-            >
-              Withdraw
-            </button>
-          )}
-
-          {/* Accepted → Remove */}
-          {isAccepted && (
-            <button
-              className="btn btn-remove"
-              onClick={() => actions.remove(conn._id)}
-            >
-              Remove
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-/* ─────────────────────────────────────────────
-   Tabs
-───────────────────────────────────────────── */
-const TABS = ["All", "Connected", "Pending Received", "Pending Sent"];
-
-/* ─────────────────────────────────────────────
-   ConnectionsPage
-───────────────────────────────────────────── */
 export default function ConnectionsPage() {
+  const navigate = useNavigate();
   const {
     connections,
     loading,
@@ -120,356 +15,185 @@ export default function ConnectionsPage() {
     declineConnectionRequest,
     removeConnection,
     withdrawRequest,
-    initSocketListeners,
-    removeSocketListeners,
   } = useConnectionStore();
 
-  const { authUser } = useAuthStore(); // { id, role, ... }
-  const currentUserId = authUser?._id || authUser?.id;
+  const { user } = useAuthStore();
+  const currentUserId = user?._id;
 
   const [activeTab, setActiveTab] = useState("All");
-  const [search, setSearch] = useState("");
 
   useEffect(() => {
     fetchConnections();
-    initSocketListeners();
-    return () => removeSocketListeners();
   }, []);
 
-  /* ── Filter by tab ── */
-  const filtered = connections.filter((c) => {
-    const isSentByMe =
-      c.senderId === currentUserId || c.sender?._id === currentUserId;
-    const isReceiver =
-      c.receiverId === currentUserId || c.receiver?._id === currentUserId;
-
-    if (activeTab === "Connected") return c.status === "Accepted";
-    if (activeTab === "Pending Received")
-      return c.status === "Pending" && isReceiver;
-    if (activeTab === "Pending Sent")
-      return c.status === "Pending" && isSentByMe;
+  const filteredConnections = connections.filter((conn) => {
+    if (activeTab === "Connected") return conn.status === "Accepted";
+    if (activeTab === "Received")
+      return conn.status === "Pending" && conn.receiverId === currentUserId;
+    if (activeTab === "Sent")
+      return conn.status === "Pending" && conn.senderId === currentUserId;
     return true;
   });
 
-  /* ── Search filter ── */
-  const displayed = filtered.filter((c) => {
-    const name =
-      (c.sender?.name || "") + " " + (c.receiver?.name || "");
-    return name.toLowerCase().includes(search.toLowerCase());
-  });
-
-  /* ── Tab counts ── */
-  const counts = {
+  const tabCounts = {
     All: connections.length,
     Connected: connections.filter((c) => c.status === "Accepted").length,
-    "Pending Received": connections.filter(
-      (c) =>
-        c.status === "Pending" &&
-        (c.receiverId === currentUserId || c.receiver?._id === currentUserId)
-    ).length,
-    "Pending Sent": connections.filter(
-      (c) =>
-        c.status === "Pending" &&
-        (c.senderId === currentUserId || c.sender?._id === currentUserId)
-    ).length,
+    Received: connections.filter((c) => c.status === "Pending" && c.receiverId === currentUserId).length,
+    Sent: connections.filter((c) => c.status === "Pending" && c.senderId === currentUserId).length,
   };
 
-  const actions = {
-    accept: acceptConnectionRequest,
-    decline: declineConnectionRequest,
-    remove: removeConnection,
-    withdraw: withdrawRequest,
+  const statusColors = {
+    Accepted: "bg-green-100 text-green-800 border-green-200",
+    Pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
   };
 
-  return (
-    <>
-      {/* ── Scoped styles ── */}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+    return (
+      <>
+        <FarmerNavBar />
+     
+      <div className="min-h-screen bg-yellow-50 p-4 md:p-8 font-sans">
 
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        .cp-root {
-          min-height: 100vh;
-          background: #0d1117;
-          color: #e6edf3;
-          font-family: 'Sora', sans-serif;
-          padding: 2rem;
-        }
-
-        /* Header */
-        .cp-header {
-          max-width: 860px;
-          margin: 0 auto 2.5rem;
-        }
-        .cp-title {
-          font-size: 2rem;
-          font-weight: 700;
-          letter-spacing: -0.04em;
-          background: linear-gradient(135deg, #58d68d, #1abc9c, #3498db);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          margin-bottom: 0.3rem;
-        }
-        .cp-subtitle {
-          font-size: 0.85rem;
-          color: #7d8590;
-          font-family: 'JetBrains Mono', monospace;
-          letter-spacing: 0.05em;
-        }
-
-        /* Search */
-        .cp-search-wrap {
-          max-width: 860px;
-          margin: 0 auto 1.5rem;
-        }
-        .cp-search {
-          width: 100%;
-          background: #161b22;
-          border: 1px solid #30363d;
-          color: #e6edf3;
-          padding: 0.7rem 1rem;
-          border-radius: 8px;
-          font-size: 0.9rem;
-          font-family: 'Sora', sans-serif;
-          outline: none;
-          transition: border-color 0.2s;
-        }
-        .cp-search:focus { border-color: #58d68d; }
-        .cp-search::placeholder { color: #484f58; }
-
-        /* Tabs */
-        .cp-tabs {
-          max-width: 860px;
-          margin: 0 auto 1.5rem;
-          display: flex;
-          gap: 0.5rem;
-          overflow-x: auto;
-          padding-bottom: 2px;
-        }
-        .cp-tabs::-webkit-scrollbar { display: none; }
-        .tab-btn {
-          background: #161b22;
-          border: 1px solid #30363d;
-          color: #7d8590;
-          padding: 0.45rem 1rem;
-          border-radius: 20px;
-          cursor: pointer;
-          font-size: 0.8rem;
-          font-family: 'Sora', sans-serif;
-          white-space: nowrap;
-          transition: all 0.2s;
-          display: flex;
-          align-items: center;
-          gap: 0.4rem;
-        }
-        .tab-btn:hover { border-color: #58d68d; color: #e6edf3; }
-        .tab-btn.active {
-          background: #1a2f23;
-          border-color: #58d68d;
-          color: #58d68d;
-          font-weight: 600;
-        }
-        .tab-count {
-          background: #21262d;
-          border-radius: 10px;
-          padding: 0 6px;
-          font-size: 0.72rem;
-          font-family: 'JetBrains Mono', monospace;
-          color: inherit;
-        }
-        .tab-btn.active .tab-count { background: #2d6a4f; }
-
-        /* List */
-        .cp-list {
-          max-width: 860px;
-          margin: 0 auto;
-          display: flex;
-          flex-direction: column;
-          gap: 0.75rem;
-        }
-
-        /* Card */
-        .conn-card {
-          background: #161b22;
-          border: 1px solid #21262d;
-          border-radius: 12px;
-          padding: 1rem 1.25rem;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 1rem;
-          transition: border-color 0.2s, transform 0.15s;
-          animation: fadeUp 0.3s ease both;
-        }
-        .conn-card:hover {
-          border-color: #30363d;
-          transform: translateY(-1px);
-        }
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        .conn-card-left { display: flex; align-items: center; gap: 1rem; }
-        .conn-card-right {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          gap: 0.6rem;
-        }
-
-        /* Avatar */
-        .avatar-circle {
-          width: 46px;
-          height: 46px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 700;
-          font-size: 0.9rem;
-          letter-spacing: 0.05em;
-          flex-shrink: 0;
-          color: #fff;
-        }
-
-        /* Info */
-        .conn-name { font-weight: 600; font-size: 0.95rem; color: #e6edf3; }
-        .conn-email { font-size: 0.78rem; color: #7d8590; margin-top: 1px; }
-        .conn-role {
-          font-size: 0.72rem;
-          font-family: 'JetBrains Mono', monospace;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-          color: #40916c;
-          margin-top: 3px;
-        }
-
-        /* Badge */
-        .badge {
-          font-size: 0.7rem;
-          font-family: 'JetBrains Mono', monospace;
-          font-weight: 500;
-          padding: 2px 10px;
-          border-radius: 20px;
-          letter-spacing: 0.05em;
-        }
-        .badge-pending  { background: #2d2a1a; color: #e6a817; border: 1px solid #5a4700; }
-        .badge-accepted { background: #1a2f23; color: #58d68d; border: 1px solid #2d6a4f; }
-        .badge-rejected { background: #2a1a1a; color: #e05c5c; border: 1px solid #6a2d2d; }
-
-        /* Action buttons */
-        .conn-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; }
-        .btn {
-          padding: 0.38rem 0.85rem;
-          border-radius: 7px;
-          border: none;
-          cursor: pointer;
-          font-size: 0.78rem;
-          font-family: 'Sora', sans-serif;
-          font-weight: 600;
-          transition: all 0.15s;
-          letter-spacing: 0.01em;
-        }
-        .btn-accept  { background: #2d6a4f; color: #d8f3dc; }
-        .btn-accept:hover  { background: #40916c; }
-        .btn-decline { background: #3d1a1a; color: #f4a0a0; }
-        .btn-decline:hover { background: #5c2828; }
-        .btn-withdraw { background: #21262d; color: #8b949e; border: 1px solid #30363d; }
-        .btn-withdraw:hover { background: #30363d; color: #e6edf3; }
-        .btn-remove  { background: #21262d; color: #e05c5c; border: 1px solid #3d1a1a; }
-        .btn-remove:hover  { background: #3d1a1a; }
-
-        /* Empty */
-        .cp-empty {
-          max-width: 860px;
-          margin: 4rem auto;
-          text-align: center;
-          color: #484f58;
-        }
-        .cp-empty-icon { font-size: 3rem; margin-bottom: 1rem; }
-        .cp-empty-title { font-size: 1.1rem; font-weight: 600; color: #7d8590; margin-bottom: 0.4rem; }
-        .cp-empty-sub { font-size: 0.82rem; }
-
-        /* Loading */
-        .cp-loading {
-          max-width: 860px;
-          margin: 4rem auto;
-          text-align: center;
-          color: #7d8590;
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 0.9rem;
-          animation: pulse 1.4s infinite;
-        }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-        @media (max-width: 600px) {
-          .cp-root { padding: 1rem; }
-          .conn-card { flex-direction: column; align-items: flex-start; }
-          .conn-card-right { align-items: flex-start; width: 100%; }
-        }
-      `}</style>
-
-      <div className="cp-root">
-        {/* Header */}
-        <div className="cp-header">
-          <h1 className="cp-title">My Network</h1>
-          <p className="cp-subtitle">// manage connections & requests</p>
-        </div>
-
-        {/* Search */}
-        <div className="cp-search-wrap">
-          <input
-            className="cp-search"
-            type="text"
-            placeholder="Search by name..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
+        {/* Page Header */}
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-black tracking-tight">My Network</h1>
+          <p className="text-sm text-gray-500 mt-1">{connections.length} total connections</p>
         </div>
 
         {/* Tabs */}
-        <div className="cp-tabs">
-          {TABS.map((tab) => (
+        <div className="flex flex-wrap gap-2 mb-6">
+          {["All", "Connected", "Received", "Sent"].map((tab) => (
             <button
               key={tab}
-              className={`tab-btn ${activeTab === tab ? "active" : ""}`}
               onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-all duration-150 flex items-center gap-2 ${
+                activeTab === tab
+                  ? "bg-green-600 text-white border-green-600 shadow-sm"
+                  : "bg-white text-black border-yellow-200 hover:border-green-400 hover:bg-yellow-100"
+              }`}
             >
               {tab}
-              <span className="tab-count">{counts[tab]}</span>
+              <span
+                className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${
+                  activeTab === tab ? "bg-green-500 text-white" : "bg-yellow-100 text-gray-600"
+                }`}
+              >
+                {tabCounts[tab]}
+              </span>
             </button>
           ))}
         </div>
 
         {/* Content */}
         {loading ? (
-          <p className="cp-loading">loading connections…</p>
-        ) : displayed.length === 0 ? (
-          <div className="cp-empty">
-            <div className="cp-empty-icon">🌾</div>
-            <p className="cp-empty-title">Nothing here yet</p>
-            <p className="cp-empty-sub">
-              {search
-                ? "No connections match your search."
-                : "Start connecting with farmers and suppliers!"}
-            </p>
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <div className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
+            <p className="text-gray-500 text-sm font-medium">Loading connections...</p>
+          </div>
+        ) : filteredConnections.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-4 border border-yellow-200">
+              <svg className="w-8 h-8 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+            </div>
+            <p className="text-black font-semibold">No connections found</p>
+            <p className="text-gray-500 text-sm mt-1">Try a different tab or connect with new people.</p>
           </div>
         ) : (
-          <div className="cp-list">
-            {displayed.map((conn, i) => (
-              <div key={conn._id} style={{ animationDelay: `${i * 0.04}s` }}>
-                <ConnectionCard
-                  conn={conn}
-                  currentUserId={currentUserId}
-                  actions={actions}
-                />
-              </div>
-            ))}
+          <div className="space-y-3">
+            {filteredConnections.map((conn) => {
+              const isSender = conn.senderId === currentUserId;
+              const person = isSender ? conn.receiver : conn.sender;
+
+              return (
+                <div
+                  key={conn._id}
+                  className="bg-white border border-yellow-100 rounded-2xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm hover:shadow-md transition-shadow"
+                >
+                  {/* Left — Person Info */}
+                  <div className="flex items-center gap-4 cursor-pointer"
+                  onClick={() => navigate(`/user/${person._id}`)}
+                  >
+                    {/* Avatar placeholder */}
+                    <div className="w-11 h-11 rounded-full bg-green-100 border border-green-200 flex items-center justify-center flex-shrink-0">
+                      <img src={person?.image || defaultAvatar} alt={person?.name} className="w-10 h-10 rounded-full object-cover" />
+                    </div>
+
+                    <div>
+                      <h2 className="font-semibold text-black text-base leading-tight">
+                        {person?.name}
+                      </h2>
+                      <p className="text-sm text-gray-500">{person?.email}</p>
+                      <span
+                        className={`inline-block mt-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full border ${
+                          statusColors[conn.status] || "bg-gray-100 text-gray-600 border-gray-200"
+                        }`}
+                      >
+                        {conn.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Right — Actions */}
+                  <div className="flex gap-2 flex-shrink-0">
+
+                    {/* Incoming request */}
+                    {conn.status === "Pending" && conn.receiverId === currentUserId && (
+                      <>
+                        <button
+                          onClick={() => acceptConnectionRequest(conn._id)}
+                          className="bg-green-600 hover:bg-green-700 active:bg-green-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-150 shadow-sm flex items-center gap-1.5"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                          Accept
+                        </button>
+                        <button
+                          onClick={() => declineConnectionRequest(conn._id)}
+                          className="bg-white hover:bg-red-50 active:bg-red-100 text-red-500 border border-red-200 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-150 flex items-center gap-1.5"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                          Decline
+                        </button>
+                      </>
+                    )}
+
+                    {/* Sent request */}
+                    {conn.status === "Pending" && conn.senderId === currentUserId && (
+                      <button
+                        onClick={() => withdrawRequest(conn._id)}
+                        className="bg-white hover:bg-yellow-50 text-black border border-yellow-200 hover:border-yellow-400 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-150 flex items-center gap-1.5"
+                      >
+                        <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                        </svg>
+                        Withdraw
+                      </button>
+                    )}
+
+                    {/* Connected */}
+                    {conn.status === "Accepted" && (
+                      <button
+                        onClick={() => removeConnection(conn._id)}
+                        className="bg-white hover:bg-red-50 text-red-500 border border-red-200 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-150 flex items-center gap-1.5"
+                      >
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6" />
+                        </svg>
+                        Remove
+                      </button>
+                    )}
+
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
-    </>
-  );
+       </>
+    );
 }

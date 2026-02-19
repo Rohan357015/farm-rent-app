@@ -10,7 +10,7 @@ export const useAuthStore = create((set, get) => ({
   checkingAuth: true,
   stats: null,
   supplierStats: null,
-  allUser : null,
+  allUser : [],
 
   checkAuth: async () => {
     set({ checkingAuth: true });
@@ -218,23 +218,33 @@ export const useAuthStore = create((set, get) => ({
       return false;
     }
   },
- AllUser: async (query) => {
-  if (!query.trim()) {
-    set({ allUser: [] });
-    return;
-  }
+
+
+ fetchAllUsers: async () => {
   set({ loading: true });
   try {
-    const res = await axios.get(`/user/search?q=${query}`);
+    const res = await axios.get("/user/search");
 
     set({
       allUser: res.data.users
     });
-   set({ loading: false });
+    set({ loading: false });
+
   } catch (error) {
-    console.error("User search error:", error);
+    set({ loading: false });
+    console.error("Error fetching users:", error);
   }
 },
+ getPublicProfile: async (id) => {
+  try {
+    const res = await axios.get(`/user/profile/${id}`);
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching public profile:", error);
+    return null;
+  }
+},
+
 
 
 }));

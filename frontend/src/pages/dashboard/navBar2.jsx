@@ -7,7 +7,7 @@ import { SearchResult } from "../searchresult.jsx";
 
 import { useEffect, useState, useMemo } from "react";
 
-import { Menu, X, Plug, MessageSquare, RadioTower } from "lucide-react";
+import { Menu, X, Plug, MessageSquare, RadioTower, Search } from "lucide-react";
 import AutoWeather from "../../components/weatherApp.jsx";
 import MainDropDown from "../dashboard/MainDropDown.jsx";
 
@@ -19,10 +19,12 @@ import { useProductStore } from "../../store/product.store.js";
 const FarmerNavabar = () => {
   const [search, setSearch] = useState("");
   const { products, fetchProducts } = useProductStore();
+  const [showResults, setShowResults] = useState(false);
+
 
 
   const { getFarmerBookings } = useBookingStore();
-  const { user, allUser, AllUser, getFarmerDashboard } = useAuthStore();
+  const { user, allUser, fetchAllUsers, getFarmerDashboard } = useAuthStore();
 
   const [bookings, setBookings] = useState([]);
   const [open, setOpen] = useState(false);
@@ -63,8 +65,16 @@ const FarmerNavabar = () => {
 
   const [searchType, setSearchType] = useState("users");
 
+  useEffect(() => {
+    fetchAllUsers();
+    console.log("All users fetched:", allUser);
+  }, []);
+
+
   const filteredResults = useMemo(() => {
-    if (!search.trim()) return { products: [], user: [] };
+    if (!search.trim()) {
+      return { products: [], users: [] };
+    }
 
     const searchLower = search.toLowerCase();
 
@@ -78,24 +88,32 @@ const FarmerNavabar = () => {
         item.model?.toLowerCase().includes(searchLower)
       );
     }
+
+    if (searchType === "users") {
+      filteredUsers = allUser.filter((u) =>
+        u.name?.toLowerCase().includes(searchLower)
+      );
+    }
+
     return {
       products: filteredProducts,
-
+      users: filteredUsers,
     };
-  }, [search, products, searchType]);
+  }, [search, searchType, products, allUser]);
 
- useEffect(() => {
-  if (searchType !== "users") return;
 
-  const delay = setTimeout(() => {
-    if (search.trim() !== "") {
-      AllUser(search);
-    }
-  }, 400);
+  // useEffect(() => {
+  //   if (searchType !== "users") return;
 
-  return () => clearTimeout(delay);
+  //   const delay = setTimeout(() => {
+  //     if (search.trim() !== "") {
+  //       AllUser(search);
+  //     }
+  //   }, 100);
 
-}, [search, searchType]);
+  //   return () => clearTimeout(delay);
+
+  // }, [search, searchType]);
 
 
 
@@ -131,45 +149,28 @@ const FarmerNavabar = () => {
             <li>
               <div className="flex items-center">
 
-                {/* Search Type Dropdown */}
-                <select
-                  name="searchType"
-                  value={searchType}
-                  onChange={(e) => setSearchType(e.target.value)}
-                  className=" px-3 py-2
-                    border border-gray-300
-                     border-r-0
-                rounded-l-md
-                  bg-gray-50
-                     text-sm
-                 focus:outline-none
-                   focus:ring-2
-                  focus:ring-yellow-500 "
-                >
 
+                <select
+                  value={searchType}
+                  onChange={(e) => {
+                    setSearchType(e.target.value); // ✅ Clear on type change
+                  }}
+                  className="px-3 py-2 border border-gray-300 border-r-0 rounded-l-md bg-gray-50"
+                >
                   <option value="users">Users</option>
                   <option value="products">Products</option>
                 </select>
 
-                {/* Search Input */}
                 <input
                   type="text"
                   placeholder="Search..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="
-      px-4 py-1
-      border border-gray-300
-      border-l-0
-      rounded-r-md
-      w-64
-      focus:outline-none
-      
-     
-    "
+                  className="px-4 py-1 border border-gray-300 border-l-0 w-64"
                 />
 
               </div>
+
 
 
 
@@ -199,21 +200,43 @@ const FarmerNavabar = () => {
           </ul>
         </div>
 
+        {search.trim() && (
+          (searchType === "products" && filteredResults.products.length > 0) ||
+          (searchType === "users" && filteredResults.users.length > 0)
+        ) && (
+            <div
+              className="
+      absolute top-[75px] left-1/2 -translate-x-1/2
+      w-[32rem]
+      bg-white
+      shadow-2xl
+      rounded-2xl
+      border border-gray-200
+      z-50
+      animate-fadeIn
+    "
+            >
+              <div
+                className="
+        max-h-80
+        overflow-y-auto
+        px-4 py-3
+        scrollbar-hide
+      "
+                style={{
+                  scrollbarWidth: "none",
+                  msOverflowStyle: "none"
+                }}
+              >
+                <SearchResult
+                  data={filteredResults}
+                  searchType={searchType}
+                />
+              </div>
+            </div>
+          )}
 
-        {search && (
-          <div className="absolute top-[70px] left-[25%] bg-white shadow-lg w-[40rem] p-10 rounded-md z-50">
 
-            <SearchResult
-              data={{
-                products: filteredResults.products,
-                users: allUser
-              }}
-              searchType={searchType}
-              search={search}
-            />
-
-          </div>
-        )}
 
 
         {/* RIGHT ICONS */}

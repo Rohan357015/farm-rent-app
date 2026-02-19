@@ -23,6 +23,7 @@ import FarmerProfileCard from "./pages/dashboard/farmerprofile.jsx";
 import SupplierProfile from "./pages/dashboard/supplierProfile.jsx";
 import { useBookingStore } from "./store/booking.store.js";
 import ConnectionsPage from "./pages/connectionPage.jsx";
+import PublicUserProfile from "./pages/userinfopage.jsx";
 function App() {
   const { checkAuth, checkingAuth, user } = useAuthStore(
     useShallow((state) => ({
@@ -94,6 +95,7 @@ function App() {
             path="/connections"
             element={user ? <ConnectionsPage /> : <FarmerLogin />}
           />
+         <Route path="/user/:id" element={<PublicUserProfile />} />
 
 
         </Routes>

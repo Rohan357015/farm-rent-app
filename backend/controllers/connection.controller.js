@@ -230,42 +230,42 @@ export const withdrawRequest = async (req, res) => {
 
 export const globalUserSearch = async (req, res) => {
   try {
-    const { q } = req.query;
+    const farmers = await Farmer.find().select("_id name image role");
+    const suppliers = await Supplier.find().select("_id name image role");
 
-    if (!q || !q.trim()) {
-      return res.status(400).json({ message: "Search query is required" });
-    }
-
-    const regex = new RegExp(q.trim(), "i"); // case-insensitive search
-
-    // Search Farmers
-    const farmers = await Farmer.find({
-      name: regex
-    })
-      .select("_id name image role")
-      .limit(10);
-
-    // Search Suppliers
-    const suppliers = await Supplier.find({
-      name: regex
-    })
-      .select("_id name image role")
-      .limit(10);
-
-    // Combine both
     const users = [...farmers, ...suppliers];
 
     res.status(200).json({
       success: true,
-      count: users.length,
       users
     });
 
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "User search failed",
-      error: error.message
+      message: "Failed to fetch users"
     });
   }
 };
+            
+
+
+export const getPublicUserProfile = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    let user =
+      (await Farmer.findById(id)) ||
+      (await Supplier.findById(id));
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(user);
+
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch user profile" });
+  }
+};
+

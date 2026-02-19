@@ -1,9 +1,18 @@
 import React from "react";
 import myphoto from "../assets/default-avtar.png";
+import { useNavigate } from "react-router-dom";
+
 export const SearchResult = ({ data, searchType }) => {
+    const scrollStyle = {
+        maxHeight: "400px",
+        overflowY: "auto",
+        scrollbarWidth: "none",
+        msOverflowStyle: "none"
+    };
+    const navigate = useNavigate();
 
     return (
-        <div className="max-h-[400px] overflow-y-auto">
+        <div style={scrollStyle}>
 
             {/* PRODUCTS */}
             {searchType === "products" && (
@@ -20,6 +29,7 @@ export const SearchResult = ({ data, searchType }) => {
                         <div
                             key={product._id}
                             className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 transition cursor-pointer"
+                             onClick={() => navigate(`/equipment/${product._id}`)}
                         >
                             <img
                                 src={product.images}
@@ -47,6 +57,8 @@ export const SearchResult = ({ data, searchType }) => {
                         User Results
                     </h2>
                     
+                    {data.users === undefined && <p className="text-gray-500 text-sm">No users data available</p>}
+                    
                     {data.users?.length === 0 && (
                         <p className="text-gray-500 text-sm">No users found</p>
                     )}
@@ -55,6 +67,7 @@ export const SearchResult = ({ data, searchType }) => {
                         <div
                             key={user._id}
                             className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-100 transition cursor-pointer"
+                            onClick={() => navigate(`/user/${user._id}`)}
                         >
                             <img
                                 src={user.image || myphoto}

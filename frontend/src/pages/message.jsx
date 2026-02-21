@@ -28,7 +28,7 @@ export default function MessageBox() {
     connectSocket(user._id);
     fetchConnections();
     return () => disconnectSocket();
-  }, [user]);
+  }, [user?._id]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });

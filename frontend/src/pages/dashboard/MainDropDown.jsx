@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown ,LogOut,HelpCircle,User ,Home ,Wallet,Search,Stars,ShoppingCart } from "lucide-react";
+import { ChevronDown ,LogOut,HelpCircle,User ,Home ,Wallet,Search,Stars,ShoppingCart,MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authstore.js";
 
@@ -51,6 +51,14 @@ const MainDropDown = () => {
                                 onClick={() => navigate(user?.role ==="farmer" ? "/cart" : "/supplier-cart")}
                             >
                               {user.role==="farmer" ? <ShoppingCart className="inline-block mr-2" /> :<Wallet className="inline-block mr-2" />} {user?.role ==="farmer" ? "My Cart" : "Supplier Cart"}
+                            </a>
+                        </li>
+                         <li>
+                            <a
+                                className="block p-3 pl-10 hover:bg-gray-400 rounded"
+                                onClick={() => navigate("/user/message")}
+                            >
+                              <MessageSquare className="inline-block mr-2"/>Chat
                             </a>
                         </li>
                         

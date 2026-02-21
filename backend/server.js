@@ -12,26 +12,14 @@ import bookRouter from './routes/book.routes.js';
 import CartRouter from './routes/cart.route.js';
 import authTokenRoutes from "./routes/auth.routes.js";
 import connectionRouter from './routes/connection.routes.js';
-import { Server } from 'socket.io';
+import msgrouter from './routes/message.routes.js';
+import {io,app,server} from './lib/socket.js';
 
 dotenv.config();
 
-const app = express();
+
 const PORT = process.env.PORT || 5000;
 const __dirname = path.resolve();
-
-// ✅ FIX 1: Dynamic CORS configuration for Render deployment
-const server = http.createServer(app);
-
-const io = new Server(server, {
-  cors: {
-    origin: "http://localhost:5173", // frontend
-    credentials: true
-  }
-});
-io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
-});
 
 
 app.set("io", io);
@@ -55,6 +43,7 @@ app.use("/api/bookings", bookRouter);
 app.use("/api/cart", CartRouter);
 app.use("/api/auth", authTokenRoutes);
 app.use("/api", connectionRouter);
+app.use("/api/messages",msgrouter);
 
 
 // ✅ FIX 2: Improved production static files serving

@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useConnectionStore } from "../../store/connection.store";
+import { useNavigate } from "react-router-dom";
 import {
     MapPin,
     Star,
@@ -14,11 +16,13 @@ import FarmerNavabar from "./navBar2";
 /* ===================== MAIN PROFILE ===================== */
 
 export default function Profile() {
+    const navigate = useNavigate();
     const { user, getFarmerDashboard, updateFarmerProfile, deleteFarmer } =
         useAuthStore();
 
     const [showImageModal, setShowImageModal] = useState(false);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
+    const{connections} = useConnectionStore();
 
     useEffect(() => {
         if (!user) {
@@ -135,6 +139,7 @@ export default function Profile() {
     const [showAboutModal, setShowAboutModal] = useState(false);
 
     /* ===================== JSX ===================== */
+    const connectionLength = connections.filter((c)=>c.status==="Accepted").length;
 
     return (
         <>
@@ -179,6 +184,11 @@ export default function Profile() {
 
                         <p className="text-sm text-gray-500 mt-1">
                             Member since {profile.joinDate}
+                        </p>
+                        <p className="text-blue-600 text-lg font-semibold cursor-pointer "
+                        onClick={()=>navigate('/connections')}
+                        >
+                            Connections {connectionLength<10?"0"+connectionLength:connectionLength};
                         </p>
                     </div>
                 </div>

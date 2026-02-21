@@ -189,7 +189,7 @@ const FarmerNavabar = () => {
 
             <li>
               <Link
-                to={user.role === "farmer" ? "/farmer-chat" : "/supplier-earnings"}
+                to={"/user/message"}
                 className="hover:text-yellow-500 transition"
               >
                 <MessageSquare className="w-6 h-6 inline mr-1" /> {user.role === "farmer" ? "Chat" : "Chat"}

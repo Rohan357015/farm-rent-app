@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useConnectionStore } from "../../store/connection.store";
+import { useNavigate } from "react-router-dom";
 import {
     MapPin,
     Star,
@@ -14,6 +16,7 @@ import FarmerNavabar from "./navBar2";
 /* ===================== MAIN PROFILE ===================== */
 
 export default function SupplierProfile() {
+    const navigate = useNavigate();
     const { user, getSupplierDashboard, updateSupplierProfile, deleteSupplier } =
         useAuthStore();
 
@@ -75,7 +78,7 @@ export default function SupplierProfile() {
         { label: "Phone", value: user?.phone || "+91-XXXXXXXXXX" },
         { label: "Gender", value: user?.gender },
         { label: "Occupation", value: profile.role },
-         { label: "Company Name", value: user?.companyName },
+        { label: "Company Name", value: user?.companyName },
     ];
 
     const addressInfo = [
@@ -134,6 +137,7 @@ export default function SupplierProfile() {
     };
 
     /* ===================== JSX ===================== */
+    const connectionLength = connections.filter((c)=>c.status==="Accepted").length;
 
     return (
         <>
@@ -144,13 +148,13 @@ export default function SupplierProfile() {
                 <p className="text-gray-600 mb-6">Manage your account information</p>
 
                 {/* PROFILE CARD */}
-               <div className="bg-white rounded-xl shadow p-6 flex flex-col lg:flex-row justify-between gap-6 mb-6">
+                <div className="bg-white rounded-xl shadow p-6 flex flex-col lg:flex-row justify-between gap-6 mb-6">
                     <div className="flex gap-6 flex-col sm:flex-col md:flex-row items-center md:items-start">
                         <img
                             src={profile.image}
                             className="w-24 h-24 rounded-full border-4 border-green-100 object-cover"
                         />
-                       <div className="text-center md:text-left">
+                        <div className="text-center md:text-left">
                             <h2 className="text-2xl font-bold text-black">{profile.name}</h2>
 
                             <div className="flex gap-3 items-center mt-1">
@@ -176,13 +180,18 @@ export default function SupplierProfile() {
                             <p className="text-sm text-gray-500 mt-1">
                                 Member since {profile.joinDate}
                             </p>
+                            <p className="text-blue-600 text-lg font-semibold cursor-pointer "
+                                onClick={() => navigate('/connections')}
+                            >
+                                Connections {connectionLength < 10 ? "0" + connectionLength : connectionLength};
+                            </p>
                         </div>
                     </div>
 
                     <button
-                    onClick={() => setShowImageModal(true)}
-                    className="bg-green-700 text-white px-5 h-10 rounded hover:bg-green-800 w-full lg:w-auto"
-                >
+                        onClick={() => setShowImageModal(true)}
+                        className="bg-green-700 text-white px-5 h-10 rounded hover:bg-green-800 w-full lg:w-auto"
+                    >
                         Edit Profile
                     </button>
                 </div>
@@ -203,7 +212,7 @@ export default function SupplierProfile() {
                 </div>
 
                 {/* STATS */}
-                 <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                     {stats.map((s, i) => (
                         <div
                             key={i}
@@ -221,7 +230,7 @@ export default function SupplierProfile() {
                 </div>
 
                 {/* MAIN GRID */}
-                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="col-span-2 space-y-6">
                         <InfoCard
                             title="Personal Information"
@@ -483,8 +492,8 @@ function ProfileDetailsModal({ user, onClose, onSave }) {
     const [name, setName] = useState(user?.name || "");
     const [phone, setPhone] = useState(user?.phone || "");
     const [gender, setGender] = useState(user?.gender || "");
-    const[company ,setCompany] = useState(user?.companyName||"");
-    
+    const [company, setCompany] = useState(user?.companyName || "");
+
     const [street, setStreet] = useState(user?.Address?.street || "");
     const [city, setCity] = useState(user?.Address?.city || "");
     const [state, setState] = useState(user?.Address?.state || "");
@@ -517,7 +526,7 @@ function ProfileDetailsModal({ user, onClose, onSave }) {
                         Cancel
                     </button>
                     <button
-                        onClick={() => onSave({ name, phone, gender, street,company, city, state, pincode, alternatePhone, landMark })}
+                        onClick={() => onSave({ name, phone, gender, street, company, city, state, pincode, alternatePhone, landMark })}
                         className="bg-green-700 text-white px-4 py-2 rounded"
                     >
                         Save

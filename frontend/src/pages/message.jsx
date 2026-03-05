@@ -70,7 +70,7 @@ export default function MessageBox() {
 
       {/* ── SIDEBAR ──────────────────────────────────────────── */}
       <div className={`
-        flex flex-col bg-white border-r border-green-200
+        flex flex-col bg-white border-r   border-green-200
         w-full md:w-72 lg:w-80 shrink-0
         ${showSidebar ? "flex" : "hidden"} md:flex
       `}>

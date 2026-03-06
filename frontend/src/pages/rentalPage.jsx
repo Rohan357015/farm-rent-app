@@ -32,9 +32,10 @@ const statusStyles = {
 
 
 export default function FarmerBookings() {
-    const { getFarmerBookings, cancelBookings,CompleteBookings } = useBookingStore();
+    const { getFarmerBookings, cancelBookings, CompleteBookings } = useBookingStore();
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [filter, setFilter] = useState("All");
     const handleCancel = async (bookingId) => {
         try {
             const updatedBooking = await cancelBookings(bookingId);
@@ -50,7 +51,20 @@ export default function FarmerBookings() {
     };
 
 
+    const statusCounts = {
+  All: bookings.length,
+  Pending: bookings.filter(b => b.status === "Pending").length,
+  Approved: bookings.filter(b => b.status === "Approved").length,
+  Completed: bookings.filter(b => b.status === "Completed").length,
+  Rejected: bookings.filter(b => b.status === "Rejected").length,
+  Cancelled: bookings.filter(b => b.status === "Cancelled").length
+};
 
+    const filteredBookings =
+  (filter === "All"
+    ? bookings
+    : bookings.filter((b) => b.status === filter)
+  ).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     // Jab component mount ho, bookings fetch karo
     useEffect(() => {
         const loadBookings = async () => {
@@ -96,13 +110,13 @@ export default function FarmerBookings() {
         );
     }
 
-    async function showWarning(bookingId){
-    if(window.confirm("Are you sure you want to complete this booking?")) {
-        CompleteBookings(bookingId);
-         const updatedBookings = await getFarmerBookings();
-    setBookings(updatedBookings);
+    async function showWarning(bookingId) {
+        if (window.confirm("Are you sure you want to complete this booking?")) {
+            CompleteBookings(bookingId);
+            const updatedBookings = await getFarmerBookings();
+            setBookings(updatedBookings);
+        }
     }
-}
 
     return (
         <>
@@ -121,6 +135,22 @@ export default function FarmerBookings() {
                     </div>
                 </div>
 
+                <div className="flex gap-3 mb-6 flex-wrap">
+                    {["All", "Pending", "Approved", "Completed", "Rejected", "Cancelled"].map((status) => (
+                        <button
+                            key={status}
+                            onClick={() => setFilter(status)}
+                            className={`px-4 py-1.5 rounded-full text-sm font-medium border transition
+        ${filter === status
+                                    ? "bg-green-700 text-white border-green-700"
+                                    : "bg-white text-gray-600 hover:bg-green-50"
+                                }`}
+                        >
+                            {status} ({statusCounts[status]})
+                        </button>
+                    ))}
+                </div>
+
                 {/* Booking Cards */}
                 {bookings.length === 0 ? (
                     <div className="text-center bg-white rounded-lg p-8">
@@ -128,7 +158,7 @@ export default function FarmerBookings() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {bookings.map((booking) => (
+                        {filteredBookings.map((booking) => (
                             <div
                                 key={booking._id}
                                 className={`flex rounded-xl border border-gray-200 bg-white shadow-sm hover:shadow-md transition border-l-4 ${statusStyles[booking.status]?.border || "border-l-gray-400"
@@ -213,9 +243,9 @@ export default function FarmerBookings() {
                                                 Booking Cancelled
                                             </span>
                                         )}
-                                         {booking.status === "Approved" && (
+                                        {booking.status === "Approved" && (
                                             <button className="rounded-md border border-gray-600 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 font-medium"
-                                            onClick={() => showWarning(booking._id)}
+                                                onClick={() => showWarning(booking._id)}
                                             >
                                                 Complete
                                             </button>

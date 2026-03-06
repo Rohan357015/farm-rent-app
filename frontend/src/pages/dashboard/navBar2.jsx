@@ -147,15 +147,12 @@ const FarmerNavabar = () => {
         <div className="hidden md:flex flex-1 justify-center">
           <ul className="flex gap-8 text-lg font-semibold">
             <li>
-              <div className="flex items-center">
-
+              <div className="flex items-center border border-gray-300 rounded-md overflow-hidden">
 
                 <select
                   value={searchType}
-                  onChange={(e) => {
-                    setSearchType(e.target.value); // ✅ Clear on type change
-                  }}
-                  className="px-3 py-2 border border-gray-300 border-r-0 rounded-l-md bg-gray-50"
+                  onChange={(e) => setSearchType(e.target.value)}
+                  className="px-3 py-2 bg-gray-50 outline-none border-none"
                 >
                   <option value="users">Users</option>
                   <option value="products">Products</option>
@@ -166,11 +163,10 @@ const FarmerNavabar = () => {
                   placeholder="Search..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="px-4 py-1 border border-gray-300 border-l-0 w-64"
+                  className="px-4 py-2 w-64 outline-none border-none"
                 />
 
               </div>
-
 
 
 

@@ -47,7 +47,7 @@ const SupplierDropDown = () => {
                         <li>
                             <a
                                 className="block p-3 pl-10 hover:bg-gray-400 rounded"
-                                onClick={() => navigate("/supplier-payments")}
+                                onClick={() => navigate("/supplier-earnings")}
                             >
                                <Wallet className="inline-block mr-2" /> Earnings
                             </a>

@@ -1,6 +1,27 @@
 import mongoose, { connections } from "mongoose";
 import bcrypt from "bcryptjs";
 
+const supplierRatingSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Farmer",
+      required: true,
+    },
+    rating: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5,
+    },
+    review: {
+      type: String,
+      default: "",
+    },
+  },
+  { _id: false, timestamps: true }
+);
+
 const supplierSchema = new mongoose.Schema(
   {
     name: { type: String, required: [true, "Name is required"] },
@@ -10,7 +31,14 @@ const supplierSchema = new mongoose.Schema(
     phone: { type: String },
     location: { type: String },
     about :{type:String},
-    ratings:{type:String},
+    ratings:{
+      type: [supplierRatingSchema],
+      default: [],
+    },
+    averageRating: {
+      type: Number,
+      default: 0,
+    },
     gender:{
        type: String,
     enum: ["Male","Female"]

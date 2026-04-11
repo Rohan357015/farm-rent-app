@@ -2,9 +2,35 @@ import Message from "../models/message.model.js";
 import Farmer from "../models/farmer.model.js";
 import Supplier from "../models/supplier.model.js";
 import Connection from "../models/connection.model.js";
-import { getReceiverSocketId, io } from "../lib/socket.js";
+import { emitToUser } from "../lib/socket.js";
 
-// message_controller.js — getUsersForSidebar
+const USER_SELECT = "name username profilePic image role";
+
+const hydrateConnectionUsers = async (connections) => {
+  const userIds = [
+    ...new Set(
+      connections
+        .flatMap((conn) => [conn.senderId?.toString(), conn.receiverId?.toString()])
+        .filter(Boolean)
+    ),
+  ];
+
+  const [farmers, suppliers] = await Promise.all([
+    Farmer.find({ _id: { $in: userIds } }).select(USER_SELECT).lean(),
+    Supplier.find({ _id: { $in: userIds } }).select(USER_SELECT).lean(),
+  ]);
+
+  const usersById = new Map(
+    [...farmers, ...suppliers].map((user) => [user._id.toString(), user])
+  );
+
+  return connections.map((conn) => ({
+    ...conn,
+    senderId: usersById.get(conn.senderId?.toString()) || conn.senderId,
+    receiverId: usersById.get(conn.receiverId?.toString()) || conn.receiverId,
+  }));
+};
+
 export const getUsersForSidebar = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -12,25 +38,11 @@ export const getUsersForSidebar = async (req, res) => {
     const connections = await Connection.find({
       status: "Accepted",
       $or: [{ senderId: userId }, { receiverId: userId }],
-    });
+    })
+      .sort({ updatedAt: -1 })
+      .lean();
 
-    // Manually populate since sender/receiver can be Farmer or Supplier
-    const populated = await Promise.all(
-      connections.map(async (conn) => {
-        const plainConn = conn.toObject();
-
-        // Try Farmer first, fallback to Supplier
-        plainConn.senderId =
-          (await Farmer.findById(conn.senderId).select("name username profilePic")) ||
-          (await Supplier.findById(conn.senderId).select("name username profilePic"));
-
-        plainConn.receiverId =
-          (await Farmer.findById(conn.receiverId).select("name username profilePic")) ||
-          (await Supplier.findById(conn.receiverId).select("name username profilePic"));
-
-        return plainConn;
-      })
-    );
+    const populated = await hydrateConnectionUsers(connections);
 
     res.status(200).json(populated);
   } catch (error) {
@@ -49,7 +61,9 @@ export const getMessages = async (req, res) => {
         { senderId: myId, receiverId: userToChatId },
         { senderId: userToChatId, receiverId: myId },
       ],
-    });
+    })
+      .sort({ createdAt: 1 })
+      .lean();
 
     res.status(200).json(messages);
   } catch (error) {
@@ -60,22 +74,23 @@ export const getMessages = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
   try {
-    const { text} = req.body;
+    const { text } = req.body;
     const { id: receiverId } = req.params;
     const senderId = req.user._id;
 
-    const newMessage = new Message({
+    if (!text?.trim()) {
+      return res.status(400).json({ error: "Message text is required" });
+    }
+
+    const newMessage = await Message.create({
       senderId,
       receiverId,
-      text
+      text: text.trim(),
     });
 
-    await newMessage.save();
+    emitToUser(receiverId, "newMessage", newMessage);
+    emitToUser(senderId, "newMessage", newMessage);
 
-    const receiverSocketId = getReceiverSocketId(receiverId);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("newMessage", newMessage);
-    }
     res.status(201).json(newMessage);
   } catch (error) {
     console.log("Error in sendMessage controller: ", error.message);

@@ -3,6 +3,7 @@ import axios from "axios";
 export const axiosInstance = axios.create({
   baseURL: import.meta.env.MODE === "development" ? "http://localhost:5000/api" : "/api",
   withCredentials: true,
+  timeout: 15000,
 });
 
 
@@ -35,8 +36,7 @@ axiosInstance.interceptors.response.use(
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
-        }).then(token => {
-          originalRequest.headers['Authorization'] = `Bearer ${token}`;
+        }).then(() => {
           return axiosInstance(originalRequest);
         });
       }

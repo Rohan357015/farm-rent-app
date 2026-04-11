@@ -23,36 +23,35 @@ const FarmerNavabar = () => {
 
 
 
-  const { getFarmerBookings } = useBookingStore();
+  const { getFarmerBookingSummary } = useBookingStore();
   const { user, allUser, fetchAllUsers, getFarmerDashboard } = useAuthStore();
 
-  const [bookings, setBookings] = useState([]);
+  const [bookingSummary, setBookingSummary] = useState({ total: 0, active: 0 });
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (user?.role === "farmer") {
+    if (user?._id && user?.role === "farmer") {
       getFarmerDashboard();
     }
-  }, [user]);
+  }, [user?._id, user?.role, getFarmerDashboard]);
 
   useEffect(() => {
     if (user?.role !== "farmer") return;
 
-    const loadBookings = async () => {
+    const loadBookingSummary = async () => {
       try {
-        const data = await getFarmerBookings();
-        setBookings(data || []);
+        const summary = await getFarmerBookingSummary();
+        setBookingSummary(summary);
       } catch (error) {
-        console.error("Error loading bookings:", error);
+        console.error("Error loading booking summary:", error);
       }
     };
 
-    loadBookings();
-  }, [user]);
+    loadBookingSummary();
+  }, [user?._id, user?.role, getFarmerBookingSummary]);
 
 
-  const activeRentals =
-    bookings?.filter((b) => b.status === "Approved").length || 0;
+  const activeRentals = bookingSummary.active || 0;
 
   const avgRating =
     user?.ratings?.length > 0
@@ -66,9 +65,13 @@ const FarmerNavabar = () => {
   const [searchType, setSearchType] = useState("users");
 
   useEffect(() => {
-    fetchAllUsers();
-    console.log("All users fetched:", allUser);
-  }, []);
+    const loadUsers = async () => {
+      const users = await fetchAllUsers();
+      console.log("All users fetched:", users || []);
+    };
+
+    loadUsers();
+  }, [fetchAllUsers]);
 
 
   const filteredResults = useMemo(() => {
@@ -297,7 +300,7 @@ const FarmerNavabar = () => {
           {/* STATS */}
           <section className="flex justify-around text-center font-serif">
             <div>
-              <h2 className="text-green-700">{bookings.length}</h2>
+              <h2 className="text-green-700">{bookingSummary.total}</h2>
               <p>Rentals</p>
             </div>
             <div>

@@ -5,34 +5,72 @@ import { useProductStore } from "../store/product.store";
 import { useAuthStore } from "../store/authstore.js";
 import { useNavigate } from "react-router-dom";
 import { useCartStore } from "../store/useCartStore.js"
-import { useBookingStore } from "../store/booking.store.js";
 import FarmerNavabar from "./dashboard/navBar2.jsx";
+import StarRating from "../components/StarRating.jsx";
 
 export default function EquipmentDetails() {
-  const { addBooking } = useBookingStore();
   const [open, setOpen] = useState(false);
   const { addToCart } = useCartStore();
   const navigate = useNavigate();
   const { id } = useParams();
   const { user } = useAuthStore();
-  const { getProductDetails, productDetails, detailsLoading, updateProduct } = useProductStore();
+  const {
+    getProductDetails,
+    productDetails,
+    detailsLoading,
+    rateProduct,
+    rateSupplier,
+    ratingLoading,
+  } = useProductStore();
 
   const [activeImage, setActiveImage] = useState(0);
   const [showMore, setShowMore] = useState(false);
+  const [productRatingValue, setProductRatingValue] = useState(0);
+  const [supplierRatingValue, setSupplierRatingValue] = useState(0);
+  const [productReview, setProductReview] = useState("");
+  const [supplierReview, setSupplierReview] = useState("");
 
   useEffect(() => {
     getProductDetails(id);
+  }, [id, getProductDetails]);
 
-  }, [id]);
+  const equipment = productDetails;
+  const currentProductRating = equipment?.ratings?.find(
+    (item) => item.userId?.toString() === user?._id?.toString()
+  );
+  const currentSupplierRating = equipment?.supplier?.ratings?.find(
+    (item) => item.userId?.toString() === user?._id?.toString()
+  );
+
+  useEffect(() => {
+    setProductRatingValue(currentProductRating?.rating || 0);
+    setSupplierRatingValue(currentSupplierRating?.rating || 0);
+    setProductReview(currentProductRating?.review || "");
+    setSupplierReview(currentSupplierRating?.review || "");
+  }, [currentProductRating, currentSupplierRating]);
 
   if (detailsLoading) return <div className="p-6 text-center">Loading...</div>;
   if (!productDetails) return <div className="p-6 text-center text-red-600">Equipment not found</div>;
 
-  const equipment = productDetails;
-
   const images = equipment.images?.length
     ? equipment.images
     : ["/placeholder1.jpg", "/placeholder2.jpg"];
+
+  const submitProductRating = async () => {
+    await rateProduct({
+      productId: equipment._id,
+      rating: productRatingValue,
+      review: productReview,
+    });
+  };
+
+  const submitSupplierRating = async () => {
+    await rateSupplier({
+      supplierId: equipment.supplier?._id,
+      rating: supplierRatingValue,
+      review: supplierReview,
+    });
+  };
 
   return (
     <>
@@ -86,7 +124,7 @@ export default function EquipmentDetails() {
 
           <div className="flex items-center gap-4 mt-3 text-gray-700">
             <div className="flex items-center gap-1 text-yellow-500">
-              <Star fill="currentColor" size={16} /> 4.8 (24 reviews)
+              <Star fill="currentColor" size={16} /> {equipment.averageRating || 0} product rating
             </div>
             <div className="flex items-center gap-1 text-gray-600">
               <MapPin size={16} />
@@ -96,6 +134,62 @@ export default function EquipmentDetails() {
         </div>
 
         <div className="text-sm bg-gray-100 px-3 py-1 rounded-md text-gray-500">#{equipment._id?.slice(-6)}</div>
+      </div>
+
+      <div className="mt-10 grid gap-6 md:grid-cols-2">
+        <div className="rounded-xl border bg-white p-5">
+          <h2 className="text-xl font-semibold text-green-700">Equipment Rating</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Average rating: {equipment.averageRating || 0}
+          </p>
+          {user?.role === "farmer" ? (
+            <div className="mt-4 space-y-3">
+              <StarRating value={productRatingValue} onChange={setProductRatingValue} />
+              <textarea
+                value={productReview}
+                onChange={(event) => setProductReview(event.target.value)}
+                placeholder="Write a short review"
+                className="w-full rounded-lg border p-3"
+                rows="3"
+              />
+              <button
+                type="button"
+                disabled={!productRatingValue || ratingLoading}
+                onClick={submitProductRating}
+                className="rounded-lg bg-green-600 px-4 py-2 text-white disabled:opacity-50"
+              >
+                Save product rating
+              </button>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="rounded-xl border bg-white p-5">
+          <h2 className="text-xl font-semibold text-green-700">Supplier Rating</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Average rating: {equipment.supplier?.averageRating || 0}
+          </p>
+          {user?.role === "farmer" ? (
+            <div className="mt-4 space-y-3">
+              <StarRating value={supplierRatingValue} onChange={setSupplierRatingValue} />
+              <textarea
+                value={supplierReview}
+                onChange={(event) => setSupplierReview(event.target.value)}
+                placeholder="Write a short review"
+                className="w-full rounded-lg border p-3"
+                rows="3"
+              />
+              <button
+                type="button"
+                disabled={!supplierRatingValue || ratingLoading}
+                onClick={submitSupplierRating}
+                className="rounded-lg bg-green-600 px-4 py-2 text-white disabled:opacity-50"
+              >
+                Save supplier rating
+              </button>
+            </div>
+          ) : null}
+        </div>
       </div>
 
       {/* ---------------- DESCRIPTION ---------------- */}
@@ -203,6 +297,9 @@ export default function EquipmentDetails() {
           <p>
             {equipment.location?.city}, {equipment.location?.state} -
             {equipment.location?.pincode}
+          </p>
+          <p>
+            Coordinates: {equipment.location?.lat ?? "N/A"}, {equipment.location?.lng ?? "N/A"}
           </p>
           <p>Delivery Radius: {equipment.location?.deliveryRadius || 0} km</p>
         </div>

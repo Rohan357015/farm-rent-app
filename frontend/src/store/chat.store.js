@@ -1,30 +1,47 @@
 import { create } from "zustand";
-import { io } from "socket.io-client";
 import axios from "../lib/axios.js";
+import { socket } from "../lib/socket.js";
 
-const BASE_URL = "http://localhost:5000";
+let activeMessagesRequest = 0;
+
+const getUserId = (value) => (value?._id || value)?.toString();
+
+const belongsToChat = (message, selectedUser) => {
+  const selectedUserId = getUserId(selectedUser);
+  if (!selectedUserId) return false;
+
+  return (
+    getUserId(message.senderId) === selectedUserId ||
+    getUserId(message.receiverId) === selectedUserId
+  );
+};
+
+const appendUniqueMessage = (messages, message) => {
+  if (!message?._id || messages.some((item) => item._id === message._id)) {
+    return messages;
+  }
+
+  return [...messages, message].sort(
+    (a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0)
+  );
+};
 
 export const useChatStore = create((set, get) => ({
   connections: [],
   selectedUser: null,
   messages: [],
   onlineUsers: [],
-  socket: null,
   isLoadingConnections: false,
   isLoadingMessages: false,
 
-  // ================= SOCKET =================
   connectSocket: (userId) => {
-    if (get().socket) return;
+    if (!userId) return;
 
-    const socket = io(BASE_URL, {
-      withCredentials: true,
-      query: { userId },
-    });
+    socket.auth = { userId };
+    socket.io.opts.query = { userId };
 
-    socket.on("connect", () => {
-      console.log("Socket connected:", socket.id);
-    });
+    socket.off("getOnlineUsers");
+    socket.off("newMessage");
 
     socket.on("getOnlineUsers", (users) => {
       set({ onlineUsers: users });
@@ -32,84 +49,76 @@ export const useChatStore = create((set, get) => ({
 
     socket.on("newMessage", (message) => {
       const { selectedUser } = get();
+      if (!belongsToChat(message, selectedUser)) return;
 
-      if (!selectedUser) return;
-
-      const senderId =
-        message.senderId?._id || message.senderId;
-      const receiverId =
-        message.receiverId?._id || message.receiverId;
-
-      if (
-        String(senderId) === String(selectedUser._id) ||
-        String(receiverId) === String(selectedUser._id)
-      ) {
-        set((state) => ({
-          messages: [...state.messages, message],
-        }));
-      }
+      set((state) => ({
+        messages: appendUniqueMessage(state.messages, message),
+      }));
     });
 
-    set({ socket });
+    if (!socket.connected) {
+      socket.connect();
+    }
   },
 
   disconnectSocket: () => {
-    const socket = get().socket;
-    if (socket) socket.disconnect();
-    set({ socket: null });
+    socket.off("getOnlineUsers");
+    socket.off("newMessage");
   },
 
- 
   fetchConnections: async () => {
     set({ isLoadingConnections: true });
 
     try {
       const { data } = await axios.get("/messages/users");
-       console.log("RAW connections from API:", JSON.stringify(data, null, 2));
-      set({ connections: data });
-     
+      set({ connections: Array.isArray(data) ? data : [] });
     } catch (err) {
       console.error("Connections error:", err);
+      set({ connections: [] });
     } finally {
       set({ isLoadingConnections: false });
     }
   },
 
-  // ================= SELECT USER =================
   setSelectedUser: async (user) => {
+    activeMessagesRequest += 1;
     set({ selectedUser: user, messages: [] });
     if (user) {
-      await get().fetchMessages(user._id);
+      await get().fetchMessages(user._id, activeMessagesRequest);
     }
   },
 
-  // ================= FETCH MESSAGES =================
-  fetchMessages: async (userId) => {
+  fetchMessages: async (userId, requestId = ++activeMessagesRequest) => {
     set({ isLoadingMessages: true });
 
     try {
       const { data } = await axios.get(`/messages/${userId}`);
-      set({ messages: data });
+      if (requestId !== activeMessagesRequest) return;
+
+      set({ messages: Array.isArray(data) ? data : [] });
     } catch (err) {
+      if (requestId === activeMessagesRequest) {
+        set({ messages: [] });
+      }
       console.error("Messages error:", err);
     } finally {
-      set({ isLoadingMessages: false });
+      if (requestId === activeMessagesRequest) {
+        set({ isLoadingMessages: false });
+      }
     }
   },
 
-  // ================= SEND MESSAGE =================
   sendMessage: async (text) => {
     const { selectedUser } = get();
     if (!selectedUser || !text.trim()) return;
 
     try {
-      const { data } = await axios.post(
-        `/messages/send/${selectedUser._id}`,
-        { text }
-      );
+      const { data } = await axios.post(`/messages/send/${selectedUser._id}`, {
+        text: text.trim(),
+      });
 
       set((state) => ({
-        messages: [...state.messages, data],
+        messages: appendUniqueMessage(state.messages, data),
       }));
     } catch (err) {
       console.error("Send message error:", err);

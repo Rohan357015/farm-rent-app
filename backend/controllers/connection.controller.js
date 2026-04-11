@@ -3,6 +3,38 @@ import Farmer from "../models/farmer.model.js";
 import Supplier from "../models/supplier.model.js";
 import Connection from "../models/connection.model.js";
 
+const USER_SELECT = "name email image role";
+
+const hydrateConnections = async (connections) => {
+  const farmerIds = new Set();
+  const supplierIds = new Set();
+
+  connections.forEach((conn) => {
+    const senderSet = conn.senderRole === "farmer" ? farmerIds : supplierIds;
+    const receiverSet = conn.receiverRole === "farmer" ? farmerIds : supplierIds;
+    senderSet.add(conn.senderId.toString());
+    receiverSet.add(conn.receiverId.toString());
+  });
+
+  const [farmers, suppliers] = await Promise.all([
+    Farmer.find({ _id: { $in: Array.from(farmerIds) } }).select(USER_SELECT).lean(),
+    Supplier.find({ _id: { $in: Array.from(supplierIds) } }).select(USER_SELECT).lean(),
+  ]);
+
+  const farmersById = new Map(farmers.map((user) => [user._id.toString(), user]));
+  const suppliersById = new Map(suppliers.map((user) => [user._id.toString(), user]));
+
+  return connections.map((conn) => {
+    const senderMap = conn.senderRole === "farmer" ? farmersById : suppliersById;
+    const receiverMap = conn.receiverRole === "farmer" ? farmersById : suppliersById;
+
+    return {
+      ...conn,
+      sender: senderMap.get(conn.senderId.toString()) || null,
+      receiver: receiverMap.get(conn.receiverId.toString()) || null,
+    };
+  });
+};
 
 /* ===========================
    SEND CONNECTION REQUEST
@@ -63,30 +95,11 @@ export const getConnections = async (req, res) => {
         { receiverId: userId }
       ],
         status: { $in: ["Pending", "Accepted"] }
-    });
-    const populatedConnections = await Promise.all(
-      connections.map(async (conn) => {
-        let senderData, receiverData;
+    })
+      .sort({ updatedAt: -1 })
+      .lean();
 
-        if (conn.senderRole === "farmer") {
-          senderData = await Farmer.findById(conn.senderId).select("name email");
-        } else {
-          senderData = await Supplier.findById(conn.senderId).select("name email");
-        }
-
-        if (conn.receiverRole === "farmer") {
-          receiverData = await Farmer.findById(conn.receiverId).select("name email");
-        } else {
-          receiverData = await Supplier.findById(conn.receiverId).select("name email");
-        }
-
-        return {
-          ...conn._doc,
-          sender: senderData,
-          receiver: receiverData
-        };
-      })
-    );
+    const populatedConnections = await hydrateConnections(connections);
 
     const io = req.app.get("io");
     io.to(userId.toString()).emit("connections-updated", populatedConnections);
@@ -230,8 +243,10 @@ export const withdrawRequest = async (req, res) => {
 
 export const globalUserSearch = async (req, res) => {
   try {
-    const farmers = await Farmer.find().select("_id name image role");
-    const suppliers = await Supplier.find().select("_id name image role");
+    const [farmers, suppliers] = await Promise.all([
+      Farmer.find().select("_id name image role").sort({ name: 1 }).lean(),
+      Supplier.find().select("_id name image role").sort({ name: 1 }).lean(),
+    ]);
 
     const users = [...farmers, ...suppliers];
 

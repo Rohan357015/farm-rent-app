@@ -2,7 +2,8 @@ import React, { useEffect, useMemo } from "react";
 import FarmerNavabar from "./dashboard/navBar2";
 import { useBookingStore } from "../store/booking.store";
 import BookingHistory from "./bookingHistory";
-import { useNavigate } from "react-router-dom";
+import { useProductStore } from "../store/product.store.js";
+import RenterRatingCard from "../components/RenterRatingCard.jsx";
 
 const statusBadge = {
   Pending: "text-yellow-700",
@@ -13,7 +14,6 @@ const statusBadge = {
 };
 
 export default function RentalRequest() {
-  const navigate = useNavigate();
   const[History,setHistory]=React.useState(false);
   const {
     getRequest,
@@ -22,6 +22,7 @@ export default function RentalRequest() {
     requests,
     loading,
   } = useBookingStore();
+  const { rateRenter, ratingLoading } = useProductStore();
 
   useEffect(() => {
     getRequest();
@@ -156,6 +157,31 @@ export default function RentalRequest() {
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="mt-8 space-y-4">
+          <h2 className="text-xl font-semibold text-green-700">Completed Rentals</h2>
+          {requests
+            .filter((request) => request.status === "Completed")
+            .map((request) => (
+              <div key={request._id} className="rounded-lg bg-white p-5 shadow-sm">
+                <p className="font-semibold">{request.product?.equipmentName}</p>
+                <p className="mt-1 text-sm text-gray-600">
+                  Renter: {request.farmer?.name}
+                </p>
+                <RenterRatingCard
+                  farmer={request.farmer}
+                  loading={ratingLoading}
+                  onSubmit={({ rating, review }) =>
+                    rateRenter({
+                      renterId: request.farmer?._id,
+                      rating,
+                      review,
+                    })
+                  }
+                />
+              </div>
+            ))}
         </div>
       </div>
       )}

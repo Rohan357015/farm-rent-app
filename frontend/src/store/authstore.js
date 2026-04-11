@@ -224,15 +224,18 @@ export const useAuthStore = create((set, get) => ({
   set({ loading: true });
   try {
     const res = await axios.get("/user/search");
+    const users = res.data.users || [];
 
     set({
-      allUser: res.data.users
+      allUser: users
     });
     set({ loading: false });
+    return users;
 
   } catch (error) {
     set({ loading: false });
     console.error("Error fetching users:", error);
+    return [];
   }
 },
  getPublicProfile: async (id) => {

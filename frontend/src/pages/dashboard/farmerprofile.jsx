@@ -22,13 +22,20 @@ export default function Profile() {
 
     const [showImageModal, setShowImageModal] = useState(false);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
-    const{connections} = useConnectionStore();
+    const{connections, fetchConnections, initSocketListeners, removeSocketListeners} = useConnectionStore();
 
     useEffect(() => {
         if (!user) {
             getFarmerDashboard();
         }
     }, [user]);
+
+    useEffect(() => {
+        if (!user?._id) return;
+        fetchConnections();
+        initSocketListeners();
+        return () => removeSocketListeners();
+    }, [user?._id, fetchConnections, initSocketListeners, removeSocketListeners]);
 
     /* ---------------- FALLBACK DATA ---------------- */
 

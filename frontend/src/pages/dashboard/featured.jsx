@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Filter, Search, X } from "lucide-react";
+import { Filter, Search, Star, X } from "lucide-react";
 import { useProductStore } from "../../store/product.store";
 import { useNavigate } from "react-router-dom";
 
@@ -200,6 +200,14 @@ export default function EquipmentBrowser() {
                   <span className="text-green-600 font-semibold">
                     ₹{item.pricing?.dailyRate || 0}/day
                   </span>
+                </div>
+
+                <div className="mt-3 flex items-center justify-between text-xs text-gray-600">
+                  <span className="flex items-center gap-1 text-yellow-600">
+                    <Star size={14} className="fill-yellow-500 text-yellow-500" />
+                    {item.averageRating || 0} equipment rating
+                  </span>
+                  <span>Supplier {item.supplier?.averageRating || 0}</span>
                 </div>
 
                 {item.condition && (

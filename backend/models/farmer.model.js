@@ -1,6 +1,27 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 
+const farmerRatingSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Supplier",
+      required: true,
+    },
+    rating: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5,
+    },
+    review: {
+      type: String,
+      default: "",
+    },
+  },
+  { _id: false, timestamps: true }
+);
+
 const farmerSchema = new mongoose.Schema(
   {
     name: { type: String, required: [true, "Name is required"] },
@@ -17,7 +38,14 @@ const farmerSchema = new mongoose.Schema(
     landSize: { type: Number },
     role: { type: String, default: "farmer" },
     rentals: { type: Number, default: 0 },
-    ratings: { type: [Number], default: [] },
+    ratings: {
+      type: [farmerRatingSchema],
+      default: [],
+    },
+    averageRating: {
+      type: Number,
+      default: 0,
+    },
     activerentals: { type: Number, default: 0 },
     about: { type: String },
     Address: {

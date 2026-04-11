@@ -2,12 +2,29 @@ import { create } from "zustand";
 import { toast } from "react-hot-toast";
 import axios from "../lib/axios.js";
 
+const getEquipmentPayload = (data) => ({
+  items: Array.isArray(data) ? data : data?.equipment || data?.products || [],
+  hasMore: Boolean(data?.hasMore),
+  page: data?.page || 1,
+  total: data?.total || 0,
+});
+
 export const useProductStore = create((set, get) => ({
   loading: false,
   products: [],
   supplierProducts: [],
   productDetails: null,
   detailsLoading: false,
+  recommendedEquipment: [],
+  searchResults: [],
+  recommendationLoading: false,
+  searchLoading: false,
+  ratingLoading: false,
+  searchPerformed: false,
+  recommendationPage: 1,
+  searchPage: 1,
+  hasMoreRecommendations: false,
+  hasMoreSearchResults: false,
 
   // ------------------- GET SUPPLIER PRODUCTS -------------------
   getSupplierProducts: async () => {
@@ -57,9 +74,9 @@ export const useProductStore = create((set, get) => ({
       condition: capitalizeFirst(formData.condition) || "Good",
       description: formData.description || "",
       deliveryAndPickup: formData.deliveryAndPickup || false,
-      deliveryPrices: Number(formData.deliveryPrice) || 0,
+      deliveryPrices: Number(formData.deliveryPrices) || 0,
       operator: formData.operator || false,
-      operatorCharges: Number(formData.operatorPrice) || 0,
+      operatorCharges: Number(formData.operatorCharges) || 0,
 
 
       // Currently no images upload from this form - send empty array
@@ -89,6 +106,9 @@ export const useProductStore = create((set, get) => ({
       },
 
       location: {
+        lat: toNumber(formData.lat),
+        lng: toNumber(formData.lng),
+        address: formData.address || formData.city || "",
         city: formData.city || "",
         state: formData.state || "",
         pincode: formData.pincode || "",
@@ -118,23 +138,136 @@ export const useProductStore = create((set, get) => ({
       return false;
     }
   },
+  getRecommendedEquipment: async (coords = {}, options = {}) => {
+    set({ recommendationLoading: true });
+    try {
+      const page = options.page || 1;
+      const response = await axios.get("/equipment/recommended", {
+        params: { ...coords, page, limit: options.limit || 12 },
+      });
+      const payload = getEquipmentPayload(response.data);
+
+      set((state) => ({
+        recommendedEquipment: options.append
+          ? [...state.recommendedEquipment, ...payload.items]
+          : payload.items,
+        recommendationLoading: false,
+        searchPerformed: false,
+        recommendationPage: payload.page,
+        hasMoreRecommendations: payload.hasMore,
+      }));
+
+      return payload.items;
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to load recommendations");
+      set({ recommendationLoading: false, recommendedEquipment: [] });
+      return [];
+    }
+  },
+  searchEquipment: async (params = {}, options = {}) => {
+    set({ searchLoading: true });
+    try {
+      const page = options.page || 1;
+      const response = await axios.get("/equipment/search", {
+        params: { ...params, page, limit: options.limit || 12 },
+      });
+      const payload = getEquipmentPayload(response.data);
+
+      set((state) => ({
+        searchResults: options.append
+          ? [...state.searchResults, ...payload.items]
+          : payload.items,
+        searchLoading: false,
+        searchPerformed: true,
+        searchPage: payload.page,
+        hasMoreSearchResults: payload.hasMore,
+      }));
+
+      return payload.items;
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to search equipment");
+      set({ searchLoading: false, searchResults: [], searchPerformed: true });
+      return [];
+    }
+  },
+  clearSearchResults: () => {
+    set({ searchResults: [], searchPerformed: false, searchPage: 1, hasMoreSearchResults: false });
+  },
+  rateProduct: async (payload) => {
+    set({ ratingLoading: true });
+    try {
+      const response = await axios.post("/rating/product", payload);
+      set((state) => ({
+        ratingLoading: false,
+        productDetails: state.productDetails
+          ? {
+              ...state.productDetails,
+              averageRating: response.data.averageRating,
+              ratings: response.data.ratings,
+            }
+          : state.productDetails,
+      }));
+      toast.success(response.data.message || "Rating saved");
+      return response.data;
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to save rating");
+      set({ ratingLoading: false });
+      return null;
+    }
+  },
+  rateSupplier: async (payload) => {
+    set({ ratingLoading: true });
+    try {
+      const response = await axios.post("/rating/supplier", payload);
+      set((state) => ({
+        ratingLoading: false,
+        productDetails: state.productDetails
+          ? {
+              ...state.productDetails,
+              supplier: state.productDetails.supplier
+                ? {
+                    ...state.productDetails.supplier,
+                    averageRating: response.data.averageRating,
+                    ratings: response.data.ratings,
+                  }
+                : state.productDetails.supplier,
+            }
+          : state.productDetails,
+      }));
+      toast.success(response.data.message || "Rating saved");
+      return response.data;
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to save rating");
+      set({ ratingLoading: false });
+      return null;
+    }
+  },
+  rateRenter: async (payload) => {
+    set({ ratingLoading: true });
+    try {
+      const response = await axios.post("/rating/renter", payload);
+      toast.success(response.data.message || "Rating saved");
+      set({ ratingLoading: false });
+      return response.data;
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to save rating");
+      set({ ratingLoading: false });
+      return null;
+    }
+  },
   getFarmerProducts: async () => {
     set({ loading: true });
     try {
-      console.log("🔍 Fetching farmer products from /products/farmer/products");
-      const response = await axios.get("/products/farmer/products");
-      console.log("✅ Response received:", response);
-      console.log("📦 Response data:", response.data);
-      console.log("📊 Number of products:", Array.isArray(response.data) ? response.data.length : "Not an array");
-
-      const productsArray = Array.isArray(response.data) ? response.data : [];
+      const response = await axios.get("/products/farmer/products", {
+        params: { page: 1, limit: 24 },
+      });
+      const productsArray = getEquipmentPayload(response.data).items;
 
       set({
         products: productsArray,
         loading: false
       });
 
-      console.log("✅ Products set in store:", productsArray.length);
       return productsArray;
     } catch (error) {
       console.error("❌ Failed to fetch farmer products", error);

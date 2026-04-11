@@ -87,10 +87,13 @@ export const useConnectionStore = create((set, get) => ({
 
   /* ─── Socket listeners (call once on mount) ─── */
   initSocketListeners: () => {
+    get().removeSocketListeners();
     /* Incoming new request */
     socket.on("new-connection-request", (newConn) => {
       set((state) => ({
-        connections: [...state.connections, newConn],
+        connections: state.connections.some((item) => item._id === newConn._id)
+          ? state.connections
+          : [...state.connections, newConn],
       }));
       toast("📬 New connection request received!", { icon: "🤝" });
     });

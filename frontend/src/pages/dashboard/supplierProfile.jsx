@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useAuthStore } from "../../store/authstore";
 import FarmerNavabar from "./navBar2";
+import { useSupplierAnalyticsStore } from "../../store/supplierAnalytics.store";
 
 /* ===================== MAIN PROFILE ===================== */
 
@@ -23,12 +24,28 @@ export default function SupplierProfile() {
     const [showImageModal, setShowImageModal] = useState(false);
     const [showDetailsModal, setShowDetailsModal] = useState(false);
     const [showAboutModal, setShowAboutModal] = useState(false);
+    const { connections, fetchConnections, initSocketListeners, removeSocketListeners } =
+        useConnectionStore();
+    const { analytics, loading: analyticsLoading, fetchSupplierAnalytics } =
+        useSupplierAnalyticsStore();
 
     useEffect(() => {
         if (!user) {
             getSupplierDashboard();
         }
     }, [user]);
+
+    useEffect(() => {
+        if (!user?._id) return;
+        fetchConnections();
+        initSocketListeners();
+        return () => removeSocketListeners();
+    }, [user?._id, fetchConnections, initSocketListeners, removeSocketListeners]);
+
+    useEffect(() => {
+        if (!user?._id) return;
+        fetchSupplierAnalytics({ page: 1, limit: 5 });
+    }, [user?._id, fetchSupplierAnalytics]);
 
     /* ---------------- FALLBACK DATA ---------------- */
 
@@ -65,9 +82,14 @@ export default function SupplierProfile() {
         about: user?.about || "Nothing To Display",
     };
 
+    const formatCurrency = (value) =>
+        `Rs ${Number(value || 0).toLocaleString("en-IN")}`;
+    const analyticsSummary = analytics?.summary || {};
+    const topBookedEquipment = analytics?.topEquipment?.[0];
+
     const stats = [
-        { label: "Total Bookings", value: user?.rentals ?? 24, icon: <ClipboardList /> },
-        { label: "Completed Rentals", value: 22, icon: <Check /> },
+        { label: "Total Earnings", value: formatCurrency(analyticsSummary.totalLifetime), icon: <ClipboardList /> },
+        { label: "Completed Rentals", value: analyticsSummary.completedRentals || 0, icon: <Check /> },
         { label: "Active Rentals", value: user?.activerentals ?? 2, icon: <RefreshCcw /> },
         { label: "Total Income", value: "₹1,24,500", icon: <IndianRupee /> },
     ];
@@ -227,6 +249,54 @@ export default function SupplierProfile() {
                             </div>
                         </div>
                     ))}
+                </div>
+
+                <div className="bg-white rounded-xl shadow p-6 mb-6">
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                        <div>
+                            <h3 className="text-lg font-semibold text-green-700">Earnings Analytics</h3>
+                            <p className="text-sm text-gray-600">
+                                {analyticsLoading ? "Loading revenue trend..." : "Monthly revenue, growth and top equipment"}
+                            </p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => navigate("/supplier-earnings")}
+                            className="rounded bg-green-700 px-4 py-2 text-white hover:bg-green-800"
+                        >
+                            View Earnings
+                        </button>
+                    </div>
+
+                    <div className="mt-5 grid gap-4 md:grid-cols-3">
+                        <div className="rounded-lg border p-4">
+                            <p className="text-xs text-gray-500">Total Earnings</p>
+                            <p className="mt-1 text-2xl font-bold text-green-700">
+                                {formatCurrency(analyticsSummary.totalLifetime)}
+                            </p>
+                            <p className="mt-1 text-xs text-gray-500">{analyticsSummary.completedRentals || 0} completed rentals</p>
+                        </div>
+                        <div className="rounded-lg border p-4">
+                            <p className="text-xs text-gray-500">Monthly Earnings</p>
+                            <p className="mt-1 text-2xl font-bold text-green-700">
+                                {formatCurrency(analyticsSummary.thisMonth)}
+                            </p>
+                            <p className={`mt-1 text-xs font-semibold ${
+                                (analyticsSummary.monthlyGrowthPercent || 0) >= 0 ? "text-green-700" : "text-red-600"
+                            }`}>
+                                {analyticsSummary.monthlyGrowthPercent || 0}% vs previous month
+                            </p>
+                        </div>
+                        <div className="rounded-lg border p-4">
+                            <p className="text-xs text-gray-500">Top Booked Equipment</p>
+                            <p className="mt-1 text-lg font-semibold text-black">
+                                {topBookedEquipment?.equipmentName || "No bookings yet"}
+                            </p>
+                            <p className="mt-1 text-xs text-gray-500">
+                                {topBookedEquipment?.bookings || 0} bookings · {formatCurrency(topBookedEquipment?.revenue)}
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 {/* MAIN GRID */}

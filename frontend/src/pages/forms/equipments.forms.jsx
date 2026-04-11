@@ -37,8 +37,11 @@ function Equipmentsforms() {
     deposit: "",
     available: false,
     city: "",
+    address: "",
     state: "",
     pincode: "",
+    lat: "",
+    lng: "",
     radius: "",
     status: "Approved",
     agreed: false,
@@ -87,8 +90,11 @@ function Equipmentsforms() {
         deposit: p.pricing?.securityDeposit || "",
         available: p.availability?.available || false,
         city: p.location?.city || "",
+        address: p.location?.address || "",
         state: p.location?.state || "",
         pincode: p.location?.pincode || "",
+        lat: p.location?.lat || "",
+        lng: p.location?.lng || "",
         status: p.status || "Approved",
         radius: p.location?.deliveryRadius || "",
         agreed: p.agreement?.agreedToTerms || false,
@@ -555,6 +561,13 @@ function Equipmentsforms() {
                 <div className="grid grid-cols-2 gap-8 mt-6">
                   <input
                     className="bg-gray-100 p-3 rounded border"
+                    placeholder="Address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleChange}
+                  />
+                  <input
+                    className="bg-gray-100 p-3 rounded border"
                     placeholder="City"
                     name="city"
                     value={formData.city}
@@ -572,6 +585,20 @@ function Equipmentsforms() {
                     placeholder="Pincode"
                     name="pincode"
                     value={formData.pincode}
+                    onChange={handleChange}
+                  />
+                  <input
+                    className="bg-gray-100 p-3 rounded border"
+                    placeholder="Latitude"
+                    name="lat"
+                    value={formData.lat}
+                    onChange={handleChange}
+                  />
+                  <input
+                    className="bg-gray-100 p-3 rounded border"
+                    placeholder="Longitude"
+                    name="lng"
+                    value={formData.lng}
                     onChange={handleChange}
                   />
                   <input

@@ -62,4 +62,8 @@ const bookingSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+bookingSchema.index({ farmer: 1, createdAt: -1 });
+bookingSchema.index({ supplier: 1, status: 1, createdAt: -1 });
+bookingSchema.index({ product: 1, status: 1, startDate: 1, endDate: 1 });
+
 export default mongoose.model("Booking", bookingSchema);

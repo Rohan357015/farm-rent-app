@@ -14,6 +14,8 @@ import authTokenRoutes from "./routes/auth.routes.js";
 import connectionRouter from './routes/connection.routes.js';
 import msgrouter from './routes/message.routes.js';
 import {io,app,server} from './lib/socket.js';
+import equipmentRouter from './routes/equipment.routes.js';
+import ratingRouter from './routes/rating.routes.js';
 
 dotenv.config();
 
@@ -24,9 +26,44 @@ const __dirname = path.resolve();
 
 app.set("io", io);
 
+const normalizeOrigin = (origin) => {
+  if (!origin) return "";
+  try {
+    return new URL(origin).origin;
+  } catch {
+    return origin.replace(/\/$/, "");
+  }
+};
+
+const allowedOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:5173")
+  .split(",")
+  .map((origin) => normalizeOrigin(origin.trim()))
+  .filter(Boolean);
+
+const isAllowedLocalDevOrigin = (origin) => {
+  if (process.env.NODE_ENV === "production") return false;
+  try {
+    const { hostname, protocol } = new URL(origin);
+    return protocol === "http:" && ["localhost", "127.0.0.1", "::1"].includes(hostname);
+  } catch {
+    return false;
+  }
+};
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: (origin, callback) => {
+      const normalizedOrigin = normalizeOrigin(origin);
+      if (
+        !origin ||
+        allowedOrigins.includes(normalizedOrigin) ||
+        isAllowedLocalDevOrigin(normalizedOrigin)
+      ) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Origin not allowed by CORS"));
+    },
     credentials: true,
   })
 );
@@ -39,12 +76,17 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use("/api/auth", farmerRoutes);
 app.use("/api/auth", supplierRoutes);
 app.use("/api/products", productRouter);
+app.use("/api/equipment", equipmentRouter);
+app.use("/api/rating", ratingRouter);
 app.use("/api/bookings", bookRouter);
 app.use("/api/cart", CartRouter);
 app.use("/api/auth", authTokenRoutes);
 app.use("/api", connectionRouter);
 app.use("/api/messages",msgrouter);
 
+app.get("/health", (req, res) => {
+  res.json({ status: "Server is running" });
+});
 
 // ✅ FIX 2: Improved production static files serving
 
@@ -57,11 +99,6 @@ if (process.env.NODE_ENV === "production") {
     );
   });
 }
-
-// Health check endpoint for Render
-app.get("/health", (req, res) => {
-  res.json({ status: "Server is running" });
-});
 
 server.listen(PORT, () => {
   connectDB();

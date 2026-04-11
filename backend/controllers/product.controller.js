@@ -4,11 +4,34 @@ import cloudinary from "../lib/cloudinary.js";
 import Farmer from "../models/farmer.model.js";
 
 import { Product } from "../models/product.model.js";
+
+const PRODUCT_LIST_SELECT =
+  "equipmentName category brand model condition images pricing location averageRating status supplier createdAt availability";
+const SUPPLIER_LIST_SELECT = "name email companyName phone location averageRating";
+
+const getPagination = (query) => {
+  const page = Math.max(parseInt(query.page, 10) || 1, 1);
+  const limit = Math.min(Math.max(parseInt(query.limit, 10) || 24, 1), 60);
+  const skip = (page - 1) * limit;
+  return { page, limit, skip };
+};
+
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find().populate("supplier", "name email companyName phone location") ||
-      await Product.findById(req.params.id).populate("supplier", "name email companyName phone location");
-    res.json(products);
+    const { page, limit, skip } = getPagination(req.query);
+    const [products, total] = await Promise.all([
+      Product.find()
+        .select(PRODUCT_LIST_SELECT)
+        .populate("supplier", SUPPLIER_LIST_SELECT)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Product.countDocuments(),
+    ]);
+
+    res.set("Cache-Control", "private, max-age=30");
+    res.json({ products, page, limit, total, hasMore: skip + products.length < total });
   } catch (error) {
     console.error("Error retrieving products:", error);
     res.status(500).json({ message: "product retrieval failed" });
@@ -59,6 +82,8 @@ export const addProduct = async (req, res) => {
       pricing,
       availability,
       location,
+      ratings,
+      averageRating,
       terms,
       agreement,
       status,
@@ -115,6 +140,8 @@ export const addProduct = async (req, res) => {
       pricing: pricing || {},
       availability: availability || { available: true },
       location: location || {},
+      ratings: ratings || [],
+      averageRating: averageRating || 0,
 
       terms: terms || {},
       agreement: agreement || { agreedToTerms: false, verifiedInformation: false },
@@ -137,35 +164,22 @@ export const addProduct = async (req, res) => {
 
 export const farmersGetAllProducts = async (req, res) => {
   try {
-    console.log("=== Farmer Products Request ===");
-    console.log("User:", req.user?._id, req.user?.role);
+    const { page, limit, skip } = getPagination(req.query);
+    const filter = { status: "Approved" };
 
-    // First check all products regardless of status
-    const allProducts = await Product.find();
-    console.log(`Total products in database: ${allProducts.length}`);
-    console.log("Products by status:", {
-      Approved: allProducts.filter(p => p.status === "Approved").length,
-      Pending: allProducts.filter(p => p.status === "Pending").length,
-      Rejected: allProducts.filter(p => p.status === "Rejected").length
-    });
+    const [products, total] = await Promise.all([
+      Product.find(filter)
+        .select(PRODUCT_LIST_SELECT)
+        .populate("supplier", SUPPLIER_LIST_SELECT)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Product.countDocuments(filter),
+    ]);
 
-    // Show all approved products to all farmers
-    const products = await Product.find({ status: "Approved" })
-      .populate("supplier", "name email companyName phone location")
-      .sort({ createdAt: -1 }); // Sort by newest first
-
-    console.log(`Returning ${products.length} approved products`);
-
-    if (products.length === 0) {
-      console.log("WARNING: No approved products found. Showing all products instead.");
-      // If no approved products, show all products (for testing)
-      const allProductsForFarmer = await Product.find()
-        .populate("supplier", "name email companyName phone location")
-        .sort({ createdAt: -1 });
-      return res.json(allProductsForFarmer);
-    }
-
-    res.json(products);
+    res.set("Cache-Control", "private, max-age=30");
+    res.json({ products, page, limit, total, hasMore: skip + products.length < total });
   } catch (error) {
     console.error("Error retrieving products:", error);
     res.status(500).json({ message: "product retrieval failed", error: error.message });
@@ -175,7 +189,7 @@ export const farmersGetAllProducts = async (req, res) => {
 export const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id)
-      .populate("supplier", "name email phone location");
+      .populate("supplier", "name email phone location companyName averageRating ratings");
 
     if (!product) {
       return res.status(404).json({ message: "Product not found" });

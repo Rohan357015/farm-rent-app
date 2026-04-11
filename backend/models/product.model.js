@@ -1,5 +1,27 @@
 import mongoose from "mongoose";
 import Supplier from "./supplier.model.js";
+
+const productRatingSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Farmer",
+      required: true,
+    },
+    rating: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5,
+    },
+    review: {
+      type: String,
+      default: "",
+    },
+  },
+  { _id: false, timestamps: true }
+);
+
 const productSchema = new mongoose.Schema({
 
   equipmentName: { type: String, required: true },
@@ -57,12 +79,22 @@ const productSchema = new mongoose.Schema({
       required: true,
     },
   location: {
+    lat: { type: Number, default: null },
+    lng: { type: Number, default: null },
     address: { type: String },
     city: { type: String },
     state: { type: String },
     pincode: { type: String },
     deliveryRadius: { type: Number },
     deliveryChargePerKm: { type: Number },
+  },
+  ratings: {
+    type: [productRatingSchema],
+    default: [],
+  },
+  averageRating: {
+    type: Number,
+    default: 0,
   },
 
   // Terms & Conditions
@@ -82,5 +114,12 @@ const productSchema = new mongoose.Schema({
     default: "Approved",
   },
 }, { timestamps: true });
+
+productSchema.index({ status: 1, createdAt: -1 });
+productSchema.index({ status: 1, averageRating: -1, createdAt: -1 });
+productSchema.index({ supplier: 1, createdAt: -1 });
+productSchema.index({ equipmentName: "text", category: "text", brand: "text", model: "text" });
+productSchema.index({ "location.city": 1, "location.state": 1, status: 1 });
+productSchema.index({ "location.lat": 1, "location.lng": 1 });
 
 export const Product = mongoose.model("Product", productSchema);

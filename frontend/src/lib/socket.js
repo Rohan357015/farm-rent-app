@@ -7,5 +7,4 @@ export const socket = io(import.meta.env.MODE === "development" ? "http://localh
   reconnectionAttempts: 10,
   reconnectionDelay: 500,
   reconnectionDelayMax: 5000,
-  transports: ["websocket", "polling"],
 });

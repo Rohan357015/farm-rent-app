@@ -42,12 +42,13 @@ const io = new Server(server, {
       if (
         !origin ||
         allowedOrigins.includes(normalizedOrigin) ||
-        isAllowedLocalDevOrigin(normalizedOrigin)
+        isAllowedLocalDevOrigin(normalizedOrigin) ||
+        normalizedOrigin.endsWith("onrender.com")
       ) {
         return callback(null, true);
       }
 
-      return callback(new Error("Socket origin not allowed"));
+      return callback(null, false);
     },
     credentials: true,
     methods: ["GET", "POST"],

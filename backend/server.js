@@ -59,12 +59,15 @@ app.use(
       if (
         !origin ||
         allowedOrigins.includes(normalizedOrigin) ||
-        isAllowedLocalDevOrigin(normalizedOrigin)
+        isAllowedLocalDevOrigin(normalizedOrigin) ||
+        normalizedOrigin.endsWith("onrender.com")
       ) {
         return callback(null, true);
       }
 
-      return callback(new Error("Origin not allowed by CORS"));
+      // Do not throw an Error (which causes 500 Internal Server Error status).
+      // Just return false to block CORS natively without breaking the Express pipeline.
+      return callback(null, false);
     },
     credentials: true,
   })
@@ -98,7 +101,7 @@ if (process.env.NODE_ENV === "production") {
 
   // Handle missing static assets to prevent fallback returning index.html
   app.use("/assets", (req, res) => {
-    res.status(404).send("Asset not found");
+    res.status(404).type("text/plain").send("404 Not Found");
   });
 
   app.get("*", (req, res) => {

@@ -13,16 +13,18 @@ import CartRouter from './routes/cart.route.js';
 import authTokenRoutes from "./routes/auth.routes.js";
 import connectionRouter from './routes/connection.routes.js';
 import msgrouter from './routes/message.routes.js';
-import {io,app,server} from './lib/socket.js';
+import { io, app, server } from './lib/socket.js';
 import equipmentRouter from './routes/equipment.routes.js';
 import ratingRouter from './routes/rating.routes.js';
 
 dotenv.config();
 
 
-const PORT = process.env.PORT || 5000;
-const __dirname = path.resolve();
+import { fileURLToPath } from 'url';
 
+const PORT = process.env.PORT || 5000;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.set("io", io);
 
@@ -82,7 +84,7 @@ app.use("/api/bookings", bookRouter);
 app.use("/api/cart", CartRouter);
 app.use("/api/auth", authTokenRoutes);
 app.use("/api", connectionRouter);
-app.use("/api/messages",msgrouter);
+app.use("/api/messages", msgrouter);
 
 app.get("/health", (req, res) => {
   res.json({ status: "Server is running" });
@@ -91,11 +93,17 @@ app.get("/health", (req, res) => {
 // ✅ FIX 2: Improved production static files serving
 
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "frontend", "dist")));
+  const frontendDistPath = path.join(__dirname, "../frontend/dist");
+  app.use(express.static(frontendDistPath));
+
+  // Handle missing static assets to prevent fallback returning index.html
+  app.use("/assets", (req, res) => {
+    res.status(404).send("Asset not found");
+  });
 
   app.get("*", (req, res) => {
     res.sendFile(
-      path.join(__dirname, "frontend", "dist", "index.html")
+      path.join(frontendDistPath, "index.html")
     );
   });
 }
